@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Đào Tạo Cá Nhân</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F3;font-size:14px;color:#1a1a1a;padding:24px;}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr);gap:16px;max-width:960px;margin:0 auto;align-items:start;}
+.sidebar{display:flex;flex-direction:column;gap:10px;}
+.main{display:flex;flex-direction:column;gap:12px;}
+.card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem 1.25rem;}
+.avatar{width:56px;height:56px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:500;color:#3C3489;flex-shrink:0;}
+.name{font-size:16px;font-weight:500;}
+.sub{font-size:12px;color:#666;margin-top:2px;}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;}
+.pill-green{background:#EAF3DE;color:#27500A;}
+.pill-amber{background:#FAEEDA;color:#633806;}
+.pill-red{background:#FCEBEB;color:#791F1F;}
+.pill-blue{background:#E6F1FB;color:#0C447C;}
+.pill-gray{background:#F1EFE8;color:#444441;}
+.sbl{font-size:11px;font-weight:500;color:#999;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.meta{display:flex;align-items:center;gap:6px;font-size:12px;color:#666;padding:5px 0;border-bottom:0.5px solid #eee;}
+.meta:last-child{border-bottom:none;}
+.stat{background:#F5F5F3;border-radius:8px;padding:10px 12px;text-align:center;}
+.stat-n{font-size:22px;font-weight:500;}
+.stat-l{font-size:11px;color:#666;margin-top:1px;}
+.tab-nav{display:flex;gap:2px;margin-bottom:12px;background:#F5F5F3;padding:3px;border-radius:8px;}
+.tn{flex:1;font-size:12px;padding:5px 4px;border:none;border-radius:6px;background:transparent;color:#666;cursor:pointer;text-align:center;transition:all .15s;}
+.tn.act{background:#fff;color:#1a1a1a;font-weight:500;border:0.5px solid #e0e0e0;}
+.cr{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid #eee;}
+.cr:last-child{border-bottom:none;}
+.ci{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;}
+.cn{font-size:13px;font-weight:500;}
+.cs{font-size:11px;color:#888;margin-top:1px;}
+.pbar{height:4px;background:#eee;border-radius:4px;margin-top:5px;}
+.pfill{height:100%;border-radius:4px;}
+.pct{font-size:11px;font-weight:500;min-width:28px;text-align:right;}
+.rm-wrap{display:flex;gap:0;}
+.rm-dot-col{width:20px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.dot-line{width:1px;flex:1;background:#e0e0e0;margin-top:3px;}
+.rm-body{flex:1;padding-bottom:14px;}
+.rm-t{font-size:13px;font-weight:500;}
+.rm-s{font-size:11px;color:#888;margin-top:2px;}
+.tag{display:inline-flex;font-size:11px;padding:2px 6px;border-radius:20px;background:#F5F5F3;color:#666;margin-right:3px;margin-top:4px;border:0.5px solid #e0e0e0;}
+.comp-r{display:flex;align-items:center;gap:10px;padding:6px 0;}
+.comp-l{font-size:12px;color:#666;min-width:130px;}
+.comp-b{flex:1;height:5px;background:#eee;border-radius:4px;}
+.comp-f{height:100%;border-radius:4px;}
+.comp-p{font-size:11px;color:#888;min-width:28px;text-align:right;}
+.divh{border:none;border-top:0.5px solid #eee;margin:10px 0;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;font-size:13px;color:#666;cursor:pointer;margin-bottom:2px;}
+.nav-item:hover{background:#F5F5F3;}
+.nav-item.active{color:#1a1a1a;font-weight:500;background:#F5F5F3;}
+.nav-item i{font-size:16px;}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:#E24B4A;margin-left:auto;}
+.nav-cnt{margin-left:auto;font-size:11px;font-weight:500;color:#666;background:#eee;padding:1px 6px;border-radius:20px;}
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.sec-title{font-size:14px;font-weight:500;}
+.tbl{width:100%;font-size:12px;border-collapse:collapse;}
+.tbl th{text-align:left;font-weight:500;color:#888;font-size:11px;text-transform:uppercase;letter-spacing:.05em;padding:0 0 8px;border-bottom:0.5px solid #eee;}
+.tbl td{padding:8px 0;border-bottom:0.5px solid #eee;}
+.tbl tr:last-child td{border-bottom:none;}
+.err-card{background:#fff;border:0.5px solid #F7C1C1;border-radius:12px;padding:1rem 1.25rem;}
+.btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:6px 14px;border-radius:8px;border:0.5px solid #e0e0e0;background:transparent;color:#1a1a1a;cursor:pointer;}
+.statg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="card" style="padding:.875rem 1rem;">
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding-bottom:12px;border-bottom:0.5px solid #eee;">
+        <div class="avatar">KN</div>
+        <div>
+          <div class="name">Phạm Thị Kim Ngân</div>
+          <div class="sub">Chuyên viên tư vấn</div>
+        </div>
+        <span class="pill pill-green"><i class="ti ti-circle-check" style="font-size:12px;"></i> Đang làm việc</span>
+      </div>
+      <div style="padding-top:10px;">
+        <div class="meta"><i class="ti ti-id-badge" style="font-size:15px;color:#bbb;"></i> NV-2024-0018</div>
+        <div class="meta"><i class="ti ti-building" style="font-size:15px;color:#bbb;"></i> Phòng Kinh Doanh</div>
+        <div class="meta"><i class="ti ti-user" style="font-size:15px;color:#bbb;"></i> QL: Nguyễn Văn A</div>
+        <div class="meta"><i class="ti ti-calendar" style="font-size:15px;color:#bbb;"></i> Vào làm: 10/03/2023</div>
+        <div class="meta"><i class="ti ti-map-pin" style="font-size:15px;color:#bbb;"></i> Chi nhánh HCM</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:.75rem;">
+      <div class="sbl" style="padding:0 4px;">Điều hướng</div>
+      <div class="nav-item active" onclick="showSection('courses')"><i class="ti ti-books"></i> Các khoá học <span class="nav-cnt">15</span></div>
+      <div class="nav-item" onclick="showSection('schedule')"><i class="ti ti-calendar-event"></i> Lịch học & lịch thi</div>
+      <div class="nav-item" onclick="showSection('roadmap')"><i class="ti ti-trending-up"></i> Lộ trình thăng tiến</div>
+      <div class="nav-item" onclick="showSection('competency')"><i class="ti ti-chart-radar"></i> Khung năng lực</div>
+      <div class="nav-item" onclick="showSection('error')" style="color:#A32D2D;"><i class="ti ti-alert-triangle"></i> Báo lỗi hệ thống <span class="nav-dot"></span></div>
+    </div>
+
+    <div class="card" style="padding:.875rem 1rem;">
+      <div class="sbl">Tiến độ học tập</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#888;">Hoàn thành</span><span style="font-weight:500;color:#0F6E56;">10 khoá</span></div>
+          <div class="pbar"><div class="pfill" style="width:67%;background:#1D9E75;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#888;">Đang học</span><span style="font-weight:500;color:#185FA5;">3 khoá</span></div>
+          <div class="pbar"><div class="pfill" style="width:20%;background:#378ADD;"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="color:#888;">Quá hạn</span><span style="font-weight:500;color:#A32D2D;">2 khoá</span></div>
+          <div class="pbar"><div class="pfill" style="width:13%;background:#E24B4A;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- Các khoá học -->
+    <div id="sec-courses">
+      <div class="card">
+        <div class="sec-hdr">
+          <div class="sec-title"><i class="ti ti-books" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:#888;"></i>Các khoá học</div>
+        </div>
+        <div class="tab-nav">
+          <button class="tn act" onclick="showTab('done',this)">Đã hoàn thành <span style="font-size:10px;opacity:.7;">(10)</span></button>
+          <button class="tn" onclick="showTab('going',this)">Đến hạn chưa học <span style="font-size:10px;opacity:.7;">(3)</span></button>
+          <button class="tn" onclick="showTab('soon',this)">Sắp đến <span style="font-size:10px;opacity:.7;">(4)</span></button>
+          <button class="tn" onclick="showTab('expired',this)">Quá hạn <span style="font-size:10px;opacity:.7;">(2)</span></button>
+        </div>
+        <div id="tab-done">
+          <div class="cr"><div class="ci" style="background:#E1F5EE;"><i class="ti ti-book" style="color:#0F6E56;"></i></div><div style="flex:1;"><div class="cn">Kỹ năng bán hàng cơ bản</div><div class="cs">Gói KTSP · Hoàn thành 15/01/2024</div></div><span class="pill pill-green"><i class="ti ti-certificate" style="font-size:11px;"></i> Có chứng chỉ</span></div>
+          <div class="cr"><div class="ci" style="background:#EEEDFE;"><i class="ti ti-device-laptop" style="color:#534AB7;"></i></div><div style="flex:1;"><div class="cn">Thao tác phần mềm CRM</div><div class="cs">Gói kỹ thuật phần mềm · Hoàn thành 02/03/2024</div></div><span class="pill pill-green"><i class="ti ti-certificate" style="font-size:11px;"></i> Có chứng chỉ</span></div>
+          <div class="cr"><div class="ci" style="background:#F1EFE8;"><i class="ti ti-settings" style="color:#5F5E5A;"></i></div><div style="flex:1;"><div class="cn">Kỹ năng hệ thống nội bộ</div><div class="cs">Kỹ năng hệ thống · Hoàn thành 20/04/2024</div></div><span class="pill pill-gray">Không có chứng chỉ</span></div>
+          <div class="cr"><div class="ci" style="background:#E6F1FB;"><i class="ti ti-users" style="color:#185FA5;"></i></div><div style="flex:1;"><div class="cn">Kỹ năng giao tiếp khách hàng</div><div class="cs">Gói KTSP · Hoàn thành 05/05/2024</div></div><span class="pill pill-green"><i class="ti ti-certificate" style="font-size:11px;"></i> Có chứng chỉ</span></div>
+        </div>
+        <div id="tab-going" style="display:none;">
+          <div class="cr"><div class="ci" style="background:#FAEEDA;"><i class="ti ti-headset" style="color:#854F0B;"></i></div><div style="flex:1;"><div class="cn">Nghiệp vụ chăm sóc khách hàng</div><div class="cs">Hạn: 30/06/2024</div><div class="pbar"><div class="pfill" style="width:60%;background:#EF9F27;"></div></div></div><span class="pct" style="color:#854F0B;">60%</span></div>
+          <div class="cr"><div class="ci" style="background:#E6F1FB;"><i class="ti ti-chart-bar" style="color:#185FA5;"></i></div><div style="flex:1;"><div class="cn">Phân tích dữ liệu cơ bản</div><div class="cs">Hạn: 15/07/2024</div><div class="pbar"><div class="pfill" style="width:30%;background:#378ADD;"></div></div></div><span class="pct" style="color:#185FA5;">30%</span></div>
+          <div class="cr"><div class="ci" style="background:#EAF3DE;"><i class="ti ti-writing" style="color:#3B6D11;"></i></div><div style="flex:1;"><div class="cn">Kỹ năng viết báo cáo</div><div class="cs">Hạn: 31/07/2024</div><div class="pbar"><div class="pfill" style="width:10%;background:#639922;"></div></div></div><span class="pct" style="color:#3B6D11;">10%</span></div>
+        </div>
+        <div id="tab-soon" style="display:none;">
+          <div class="cr"><div class="ci" style="background:#F1EFE8;"><i class="ti ti-lock" style="color:#888780;"></i></div><div style="flex:1;"><div class="cn" style="color:#888;">Quản lý dự án cơ bản</div><div class="cs">Mở từ 01/08/2024 · Chưa mở chi tiết</div></div><span class="pill pill-gray"><i class="ti ti-clock" style="font-size:11px;"></i> Sắp mở</span></div>
+          <div class="cr"><div class="ci" style="background:#F1EFE8;"><i class="ti ti-lock" style="color:#888780;"></i></div><div style="flex:1;"><div class="cn" style="color:#888;">Kỹ năng lãnh đạo nhóm</div><div class="cs">Mở từ 15/08/2024 · Chưa mở chi tiết</div></div><span class="pill pill-gray"><i class="ti ti-clock" style="font-size:11px;"></i> Sắp mở</span></div>
+        </div>
+        <div id="tab-expired" style="display:none;">
+          <div class="cr"><div class="ci" style="background:#FCEBEB;"><i class="ti ti-alert-circle" style="color:#A32D2D;"></i></div><div style="flex:1;"><div class="cn">An toàn lao động</div><div class="cs" style="color:#A32D2D;">Hết hạn: 01/03/2024 · Chưa hoàn thành</div></div><span class="pill pill-red">Quá hạn</span></div>
+          <div class="cr"><div class="ci" style="background:#FCEBEB;"><i class="ti ti-alert-circle" style="color:#A32D2D;"></i></div><div style="flex:1;"><div class="cn">Phòng chống cháy nổ</div><div class="cs" style="color:#A32D2D;">Hết hạn: 15/03/2024 · Chưa hoàn thành</div></div><span class="pill pill-red">Quá hạn</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lịch học & thi -->
+    <div id="sec-schedule" style="display:none;">
+      <div class="card">
+        <div class="sec-hdr"><div class="sec-title"><i class="ti ti-calendar-event" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:#888;"></i>Lịch học & lịch thi</div></div>
+        <div class="sbl">Lịch sắp tới</div>
+        <div class="cr"><div class="ci" style="background:#E1F5EE;"><i class="ti ti-video" style="color:#0F6E56;"></i></div><div style="flex:1;"><div class="cn">Lớp học online – Chăm sóc KH</div><div class="cs">Thứ 3, 18/06/2024 · 14:00–16:00 · Zoom</div></div><span class="pill pill-blue">Online</span></div>
+        <div class="cr"><div class="ci" style="background:#FAEEDA;"><i class="ti ti-pencil" style="color:#854F0B;"></i></div><div style="flex:1;"><div class="cn">Bài thi – Kỹ năng bán hàng nâng cao</div><div class="cs">Thứ 5, 20/06/2024 · 09:00 · Phòng 301</div></div><span class="pill pill-amber">Thi</span></div>
+        <div class="divh"></div>
+        <div class="sbl">Tổng hợp kết quả bài thi</div>
+        <table class="tbl">
+          <thead><tr><th>Bài thi</th><th>Ngày thi</th><th style="text-align:center;">Điểm</th><th style="text-align:center;">Trạng thái</th></tr></thead>
+          <tbody>
+            <tr><td>Kỹ năng bán hàng cơ bản</td><td style="color:#888;">15/01/2024</td><td style="text-align:center;font-weight:500;color:#0F6E56;">8.5</td><td style="text-align:center;"><span class="pill pill-green">Đạt</span></td></tr>
+            <tr><td>Thao tác phần mềm CRM</td><td style="color:#888;">02/03/2024</td><td style="text-align:center;font-weight:500;color:#0F6E56;">9.0</td><td style="text-align:center;"><span class="pill pill-green">Đạt</span></td></tr>
+            <tr><td>Kỹ năng giao tiếp KH</td><td style="color:#888;">05/05/2024</td><td style="text-align:center;font-weight:500;color:#0F6E56;">7.5</td><td style="text-align:center;"><span class="pill pill-green">Đạt</span></td></tr>
+            <tr><td>An toàn lao động</td><td style="color:#888;">–</td><td style="text-align:center;color:#bbb;">–</td><td style="text-align:center;"><span class="pill pill-red">Chưa thi</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Lộ trình -->
+    <div id="sec-roadmap" style="display:none;">
+      <div class="card">
+        <div class="sec-hdr"><div class="sec-title"><i class="ti ti-trending-up" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:#888;"></i>Lộ trình thăng tiến</div></div>
+        <div class="rm-wrap">
+          <div class="rm-dot-col"><div class="dot" style="background:#1D9E75;"></div><div class="dot-line"></div></div>
+          <div class="rm-body">
+            <div style="display:flex;align-items:center;gap:8px;"><div class="rm-t">Chuyên viên tư vấn</div><span class="pill pill-green">Hiện tại</span></div>
+            <div class="rm-s">Vị trí đang đảm nhiệm</div>
+            <div style="margin-top:5px;"><span class="tag">Kỹ năng bán hàng</span><span class="tag">CRM cơ bản</span><span class="tag">Giao tiếp KH</span></div>
+          </div>
+        </div>
+        <div class="rm-wrap">
+          <div class="rm-dot-col"><div class="dot" style="background:#378ADD;"></div><div class="dot-line"></div></div>
+          <div class="rm-body">
+            <div class="rm-t">Chuyên viên tư vấn cấp cao</div>
+            <div class="rm-s">Tiêu chí: 2 khoá nâng cao + điểm thi ≥ 8.0</div>
+            <div style="margin-top:5px;"><span class="tag">Phân tích dữ liệu</span><span class="tag">Chăm sóc KH nâng cao</span></div>
+            <div style="margin-top:6px;display:flex;align-items:center;gap:6px;"><div style="font-size:11px;color:#888;">Hoàn thành:</div><div class="pbar" style="flex:1;"><div class="pfill" style="width:45%;background:#378ADD;"></div></div><div style="font-size:11px;font-weight:500;color:#185FA5;">45%</div></div>
+          </div>
+        </div>
+        <div class="rm-wrap">
+          <div class="rm-dot-col"><div class="dot" style="background:#B4B2A9;"></div></div>
+          <div class="rm-body" style="padding-bottom:0;">
+            <div class="rm-t" style="color:#888;">Trưởng nhóm kinh doanh</div>
+            <div class="rm-s">Lộ trình chi tiết mở sau khi đạt cấp trên</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Khung năng lực -->
+    <div id="sec-competency" style="display:none;">
+      <div class="card">
+        <div class="sec-hdr"><div class="sec-title"><i class="ti ti-chart-radar" style="font-size:16px;vertical-align:-2px;margin-right:6px;color:#888;"></i>Khung năng lực</div></div>
+        <div class="statg" style="margin-bottom:14px;">
+          <div class="stat"><div class="stat-n" style="color:#1D9E75;">74%</div><div class="stat-l">Tổng năng lực</div></div>
+          <div class="stat"><div class="stat-n" style="color:#378ADD;">4</div><div class="stat-l">Nhóm kỹ năng</div></div>
+          <div class="stat"><div class="stat-n" style="color:#854F0B;">2</div><div class="stat-l">Cần cải thiện</div></div>
+        </div>
+        <div class="divh"></div>
+        <div class="comp-r"><div class="comp-l"><i class="ti ti-star" style="font-size:14px;margin-right:4px;color:#EF9F27;"></i>Gói KTSP</div><div class="comp-b"><div class="comp-f" style="width:80%;background:#1D9E75;"></div></div><div class="comp-p" style="color:#0F6E56;">80%</div></div>
+        <div class="comp-r"><div class="comp-l"><i class="ti ti-code" style="font-size:14px;margin-right:4px;color:#7F77DD;"></i>Kỹ thuật phần mềm</div><div class="comp-b"><div class="comp-f" style="width:65%;background:#378ADD;"></div></div><div class="comp-p" style="color:#185FA5;">65%</div></div>
+        <div class="comp-r"><div class="comp-l"><i class="ti ti-settings" style="font-size:14px;margin-right:4px;color:#888;"></i>Kỹ năng hệ thống</div><div class="comp-b"><div class="comp-f" style="width:50%;background:#7F77DD;"></div></div><div class="comp-p" style="color:#534AB7;">50%</div></div>
+        <div class="comp-r"><div class="comp-l"><i class="ti ti-bulb" style="font-size:14px;margin-right:4px;color:#EF9F27;"></i>Khái niệm cơ bản</div><div class="comp-b"><div class="comp-f" style="width:90%;background:#EF9F27;"></div></div><div class="comp-p" style="color:#854F0B;">90%</div></div>
+      </div>
+    </div>
+
+    <!-- Báo lỗi -->
+    <div id="sec-error" style="display:none;">
+      <div class="err-card">
+        <div class="sec-hdr"><div class="sec-title" style="color:#A32D2D;"><i class="ti ti-alert-triangle" style="font-size:16px;vertical-align:-2px;margin-right:6px;"></i>Báo lỗi vận hành hệ thống</div></div>
+        <div style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6;">Gặp sự cố khi sử dụng hệ thống đào tạo? Chọn kênh phù hợp để gửi yêu cầu hỗ trợ.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div style="border:0.5px solid #eee;border-radius:8px;padding:12px;">
+            <div style="font-size:12px;font-weight:500;margin-bottom:4px;"><i class="ti ti-brand-teams" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#534AB7;"></i>MS Teams Group</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.5;">Chat trực tiếp vào group báo lỗi để được xử lý nhanh</div>
+            <button class="btn" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;width:100%;justify-content:center;"><i class="ti ti-external-link"></i> Mở MS Teams</button>
+          </div>
+          <div style="border:0.5px solid #eee;border-radius:8px;padding:12px;">
+            <div style="font-size:12px;font-weight:500;margin-bottom:4px;"><i class="ti ti-send" style="font-size:14px;vertical-align:-2px;margin-right:4px;color:#185FA5;"></i>Gửi ticket hỗ trợ</div>
+            <div style="font-size:12px;color:#888;margin-bottom:10px;line-height:1.5;">Điền form mô tả lỗi, IT sẽ phản hồi trong vòng 24h</div>
+            <button class="btn" style="width:100%;justify-content:center;"><i class="ti ti-pencil"></i> Tạo yêu cầu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showSection(key){
+  ['courses','schedule','roadmap','competency','error'].forEach(k=>{
+    document.getElementById('sec-'+k).style.display=k===key?'':'none';
+  });
+  document.querySelectorAll('.nav-item').forEach((el,i)=>{
+    el.classList.toggle('active',['courses','schedule','roadmap','competency','error'][i]===key);
+  });
+}
+function showTab(key,btn){
+  ['done','going','soon','expired'].forEach(k=>{
+    document.getElementById('tab-'+k).style.display=k===key?'':'none';
+  });
+  btn.closest('.tab-nav').querySelectorAll('.tn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+}
+</script>
+</body>
+</html>
