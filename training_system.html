@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Training Management System</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --primary:#0078D4;--primary-dark:#005A9E;--primary-light:#EBF3FB;
+  --success:#107C10;--success-light:#DFF6DD;
+  --warning:#FF8C00;--warning-light:#FFF4CE;
+  --danger:#D13438;--danger-light:#FDE7E9;
+  --purple:#5C2D91;--purple-light:#F0E9F8;
+  --bg:#F3F2F1;--sidebar-bg:#1B1B1B;--sidebar-w:220px;
+  --topbar-h:48px;--card-radius:8px;--shadow:0 2px 8px rgba(0,0,0,.08);
+}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:var(--bg);color:#1a1a1a;font-size:14px;display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);color:#fff;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;transition:transform .25s;}
+.sidebar-logo{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #333;font-size:15px;font-weight:600;color:#fff;}
+.sidebar-logo i{font-size:22px;color:var(--primary);}
+.sidebar-menu{flex:1;overflow-y:auto;padding:8px 0;}
+.sidebar-menu::-webkit-scrollbar{width:4px;}
+.sidebar-menu::-webkit-scrollbar-thumb{background:#444;border-radius:4px;}
+.menu-section{font-size:10px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.08em;padding:12px 16px 4px;}
+.menu-item{display:flex;align-items:center;gap:10px;padding:8px 16px;font-size:13px;color:#ccc;cursor:pointer;transition:all .15s;border-left:3px solid transparent;position:relative;}
+.menu-item:hover{background:#2a2a2a;color:#fff;}
+.menu-item.active{background:#0078D420;color:#fff;border-left-color:var(--primary);}
+.menu-item i{font-size:18px;flex-shrink:0;}
+.menu-badge{margin-left:auto;background:var(--danger);color:#fff;font-size:10px;font-weight:600;padding:1px 6px;border-radius:10px;}
+
+/* ── MAIN ── */
+.main-wrap{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;padding:0 20px;gap:12px;position:sticky;top:0;z-index:50;}
+.topbar-title{font-size:15px;font-weight:600;flex:1;}
+.topbar-actions{display:flex;align-items:center;gap:8px;}
+.tb-btn{width:32px;height:32px;border-radius:6px;border:1px solid #e0e0e0;background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#555;transition:background .15s;position:relative;}
+.tb-btn:hover{background:#f3f2f1;}
+.notif-dot{position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--danger);border:1.5px solid #fff;}
+.avatar-sm{width:30px;height:30px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489;cursor:pointer;}
+.content{flex:1;padding:20px;overflow-y:auto;}
+
+/* ── PAGES ── */
+.page{display:none;animation:fadeIn .2s;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--card-radius);box-shadow:var(--shadow);padding:16px 20px;border:1px solid #edebe9;}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px;color:#1a1a1a;}
+.card-title i{font-size:18px;color:var(--primary);}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:var(--card-radius);box-shadow:var(--shadow);padding:16px;border:1px solid #edebe9;display:flex;flex-direction:column;gap:6px;}
+.stat-card .icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.stat-card .val{font-size:26px;font-weight:700;}
+.stat-card .lbl{font-size:12px;color:#666;}
+.stat-card .trend{font-size:11px;display:flex;align-items:center;gap:3px;}
+.trend-up{color:var(--success);}
+.trend-down{color:var(--danger);}
+
+/* ── GRID ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+/* ── TABLE ── */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#f3f2f1;padding:9px 12px;text-align:left;font-weight:600;font-size:12px;color:#666;border-bottom:1px solid #e0e0e0;white-space:nowrap;}
+tbody td{padding:10px 12px;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+tbody tr:hover{background:#fafafa;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:2px 8px;border-radius:12px;}
+.badge-green{background:var(--success-light);color:var(--success);}
+.badge-red{background:var(--danger-light);color:var(--danger);}
+.badge-amber{background:var(--warning-light);color:var(--warning);}
+.badge-blue{background:var(--primary-light);color:var(--primary-dark);}
+.badge-purple{background:var(--purple-light);color:var(--purple);}
+.badge-gray{background:#f3f2f1;color:#666;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all .15s;}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-secondary{background:#fff;color:#1a1a1a;border:1px solid #e0e0e0;}
+.btn-secondary:hover{background:#f3f2f1;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-sm{padding:4px 10px;font-size:12px;}
+.btn-icon{width:30px;height:30px;padding:0;justify-content:center;}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:600;color:#444;margin-bottom:5px;display:block;}
+.form-control{width:100%;padding:8px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;outline:none;transition:border .15s;background:#fff;}
+.form-control:focus{border-color:var(--primary);box-shadow:0 0 0 2px #0078D420;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.checkbox-row{display:flex;align-items:center;gap:8px;padding:8px 0;}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;animation:fadeIn .2s;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:10px;width:90%;max-width:520px;max-height:88vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.modal-lg{max-width:720px;}
+.modal-header{padding:16px 20px;border-bottom:1px solid #e0e0e0;display:flex;align-items:center;justify-content:space-between;}
+.modal-header h3{font-size:15px;font-weight:600;}
+.modal-close{width:28px;height:28px;border:none;background:none;cursor:pointer;font-size:18px;color:#666;display:flex;align-items:center;justify-content:center;border-radius:4px;}
+.modal-close:hover{background:#f3f2f1;}
+.modal-body{padding:20px;}
+.modal-footer{padding:14px 20px;border-top:1px solid #e0e0e0;display:flex;justify-content:flex-end;gap:8px;}
+
+/* ── NOTIF ── */
+.notif-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;}
+.notif-item:last-child{border-bottom:none;}
+.notif-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.notif-title{font-size:13px;font-weight:500;}
+.notif-sub{font-size:12px;color:#888;margin-top:2px;}
+.notif-time{font-size:11px;color:#aaa;margin-top:3px;}
+.notif-unread{background:#EBF3FB;}
+
+/* ── ROOM GRID ── */
+.room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;}
+.room-card{background:#fff;border:1px solid #edebe9;border-radius:8px;padding:14px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s;}
+.room-card:hover{border-color:var(--primary);box-shadow:0 4px 16px rgba(0,120,212,.12);}
+.room-card.selected{border-color:var(--primary);background:var(--primary-light);}
+.room-name{font-size:14px;font-weight:600;margin-bottom:6px;}
+.room-meta{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+.room-slots{margin-top:10px;}
+.slot{display:inline-flex;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;margin:2px;}
+.slot-free{background:#DFF6DD;color:#107C10;}
+.slot-busy{background:#FDE7E9;color:#D13438;}
+
+/* ── CALENDAR / SCHEDULE ── */
+.cal-table{width:100%;border-collapse:collapse;}
+.cal-table th{padding:8px 6px;text-align:center;font-size:12px;font-weight:600;background:#f3f2f1;border:1px solid #e0e0e0;}
+.cal-table td{border:1px solid #e0e0e0;padding:4px;vertical-align:top;min-height:60px;font-size:11px;}
+.cal-event{background:var(--primary-light);border-left:3px solid var(--primary);padding:3px 6px;border-radius:0 4px 4px 0;margin-bottom:2px;font-size:11px;}
+
+/* ── PROGRESS BAR ── */
+.prog-wrap{background:#e0e0e0;border-radius:4px;height:6px;margin-top:4px;}
+.prog-fill{height:100%;border-radius:4px;background:var(--primary);}
+
+/* ── PROFILE (reuse existing) ── */
+.profile-shell{display:grid;grid-template-columns:200px minmax(0,1fr);gap:14px;align-items:start;}
+.profile-sidebar{display:flex;flex-direction:column;gap:10px;}
+.p-card{background:#fff;border:1px solid #edebe9;border-radius:8px;padding:14px;box-shadow:var(--shadow);}
+.p-avatar{width:52px;height:52px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:#3C3489;}
+.p-name{font-size:15px;font-weight:600;}
+.p-sub{font-size:12px;color:#666;margin-top:2px;}
+.p-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:#666;padding:5px 0;border-bottom:1px solid #f0f0f0;}
+.p-meta:last-child{border-bottom:none;}
+.p-nav{display:flex;flex-direction:column;gap:2px;}
+.p-nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:13px;color:#666;cursor:pointer;transition:background .12s;}
+.p-nav-item:hover,.p-nav-item.active{background:#f3f2f1;color:#1a1a1a;font-weight:500;}
+.tab-bar{display:flex;gap:2px;background:#f3f2f1;padding:3px;border-radius:8px;margin-bottom:14px;}
+.tab-btn{flex:1;padding:5px 8px;border:none;border-radius:6px;background:transparent;color:#666;font-size:12px;cursor:pointer;text-align:center;transition:all .15s;}
+.tab-btn.active{background:#fff;color:#1a1a1a;font-weight:600;border:1px solid #e0e0e0;}
+.course-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;}
+.course-row:last-child{border-bottom:none;}
+.course-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:17px;}
+.course-name{font-size:13px;font-weight:500;}
+.course-sub{font-size:11px;color:#888;margin-top:2px;}
+.pbar{height:4px;background:#eee;border-radius:4px;margin-top:5px;}
+.pfill{height:100%;border-radius:4px;}
+.rm-wrap{display:flex;}
+.rm-dot-col{width:20px;display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
+.dot{width:9px;height:9px;border-radius:50%;}
+.dot-line{width:1px;flex:1;background:#e0e0e0;margin-top:3px;}
+.rm-body{flex:1;padding-bottom:14px;}
+.tag{display:inline-flex;font-size:11px;padding:2px 7px;border-radius:12px;background:#f3f2f1;color:#666;margin:2px;border:1px solid #e0e0e0;}
+.module-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;}
+.module-row:last-child{border-bottom:none;}
+.module-lock{width:32px;height:32px;border-radius:8px;background:#f3f2f1;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.module-unlock{background:#DFF6DD;}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:2px dashed #c8c6c4;border-radius:8px;padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:#faf9f8;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:var(--primary-light);}
+.upload-zone i{font-size:40px;color:#c8c6c4;margin-bottom:10px;}
+.upload-zone.drag i{color:var(--primary);}
+
+/* ── CHART BAR (CSS) ── */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:120px;padding-top:10px;}
+.chart-bar-wrap{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;}
+.chart-bar{width:100%;border-radius:4px 4px 0 0;background:var(--primary);transition:height .4s;}
+.chart-bar-lbl{font-size:10px;color:#888;}
+.chart-donut{position:relative;display:inline-flex;align-items:center;justify-content:center;}
+.chart-donut svg{transform:rotate(-90deg);}
+.donut-center{position:absolute;font-size:20px;font-weight:700;}
+
+/* ── DOCTOR CARD ── */
+.doctor-card{background:#fff;border:1px solid #edebe9;border-radius:8px;padding:16px;display:flex;gap:14px;align-items:flex-start;box-shadow:var(--shadow);}
+.doctor-avatar{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0;}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:12px 16px;box-shadow:0 4px 16px rgba(0,0,0,.12);display:flex;align-items:center;gap:10px;font-size:13px;min-width:280px;animation:slideIn .25s;border-left:4px solid var(--success);}
+.toast.error{border-left-color:var(--danger);}
+.toast.warning{border-left-color:var(--warning);}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ── TOGGLE ── */
+.toggle{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.toggle-track{width:36px;height:20px;background:#ccc;border-radius:10px;position:relative;transition:background .2s;}
+.toggle-track.on{background:var(--primary);}
+.toggle-thumb{width:16px;height:16px;background:#fff;border-radius:50%;position:absolute;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);}
+.toggle-track.on .toggle-thumb{left:18px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main-wrap{margin-left:0;}
+  .grid2,.grid3,.form-row,.form-row3{grid-template-columns:1fr;}
+  .profile-shell{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <i class="ti ti-school"></i> TrainingOS
+  </div>
+  <div class="sidebar-menu">
+    <div class="menu-section">Main</div>
+    <div class="menu-item active" onclick="nav('dashboard')"><i class="ti ti-dashboard"></i> Dashboard</div>
+    <div class="menu-section">Classroom</div>
+    <div class="menu-item" onclick="nav('book-room')"><i class="ti ti-door"></i> Book Room</div>
+    <div class="menu-item" onclick="nav('auto-book')"><i class="ti ti-wand"></i> Auto Classroom Booking</div>
+    <div class="menu-section">Employees</div>
+    <div class="menu-item" onclick="nav('import-emp')"><i class="ti ti-file-import"></i> New Employee Import</div>
+    <div class="menu-item" onclick="nav('active-acc')"><i class="ti ti-users"></i> Active Accounts</div>
+    <div class="menu-item" onclick="nav('training-profiles')"><i class="ti ti-id-badge"></i> Training Profiles</div>
+    <div class="menu-section">Lecturers & Doctors</div>
+    <div class="menu-item" onclick="nav('lecturer-assign')"><i class="ti ti-user-check"></i> Lecturer Assignment</div>
+    <div class="menu-item" onclick="nav('doctor-booking')"><i class="ti ti-calendar-plus"></i> Doctor Booking</div>
+    <div class="menu-item" onclick="nav('doctor-schedule')"><i class="ti ti-calendar-stats"></i> Doctor Schedule</div>
+    <div class="menu-item" onclick="nav('doctor-profiles')"><i class="ti ti-stethoscope"></i> Doctor Profiles</div>
+    <div class="menu-section">System</div>
+    <div class="menu-item" onclick="nav('notifications')"><i class="ti ti-bell"></i> Notifications <span class="menu-badge" id="notif-count">4</span></div>
+    <div class="menu-item" onclick="nav('settings')"><i class="ti ti-settings"></i> Settings</div>
+  </div>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<div class="main-wrap">
+  <div class="topbar">
+    <button class="tb-btn" id="menu-toggle" onclick="toggleSidebar()" style="display:none;"><i class="ti ti-menu-2"></i></button>
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-actions">
+      <div class="tb-btn" onclick="nav('notifications')"><i class="ti ti-bell"></i><span class="notif-dot"></span></div>
+      <div class="avatar-sm">HR</div>
+    </div>
+  </div>
+  <div class="content">
+
+    <!-- ══ PAGE: DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="icon" style="background:#EBF3FB;"><i class="ti ti-door" style="color:var(--primary);"></i></div><div class="val">6</div><div class="lbl">Total Rooms</div><div class="trend trend-up"><i class="ti ti-arrow-up" style="font-size:11px;"></i> 2 available now</div></div>
+        <div class="stat-card"><div class="icon" style="background:#FDE7E9;"><i class="ti ti-door-off" style="color:var(--danger);"></i></div><div class="val">4</div><div class="lbl">Rooms Occupied Today</div><div class="trend trend-down"><i class="ti ti-clock" style="font-size:11px;"></i> 3 ending soon</div></div>
+        <div class="stat-card"><div class="icon" style="background:#DFF6DD;"><i class="ti ti-user-plus" style="color:var(--success);"></i></div><div class="val">26</div><div class="lbl">New Employees</div><div class="trend trend-up"><i class="ti ti-arrow-up" style="font-size:11px;"></i> Batch Telesale K8</div></div>
+        <div class="stat-card"><div class="icon" style="background:#FFF4CE;"><i class="ti ti-calendar-event" style="color:var(--warning);"></i></div><div class="val">8</div><div class="lbl">Upcoming Classes</div><div class="trend"><i class="ti ti-clock" style="font-size:11px;color:#888;"></i> Next: 14:00 today</div></div>
+        <div class="stat-card"><div class="icon" style="background:#F0E9F8;"><i class="ti ti-stethoscope" style="color:var(--purple);"></i></div><div class="val">3</div><div class="lbl">Active Doctors</div><div class="trend trend-up"><i class="ti ti-check" style="font-size:11px;"></i> All available</div></div>
+        <div class="stat-card"><div class="icon" style="background:#FDE7E9;"><i class="ti ti-alert-triangle" style="color:var(--danger);"></i></div><div class="val">2</div><div class="lbl">Pending Assignments</div><div class="trend trend-down"><i class="ti ti-arrow-up" style="font-size:11px;"></i> Action required</div></div>
+      </div>
+      <div class="grid2" style="margin-bottom:16px;">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-chart-bar"></i> Room Utilization This Week</div>
+          <div class="chart-bars">
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:60%;background:var(--primary);"></div><div class="chart-bar-lbl">Mon</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:85%;background:var(--primary);"></div><div class="chart-bar-lbl">Tue</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:40%;background:var(--primary);"></div><div class="chart-bar-lbl">Wed</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:75%;background:var(--primary);"></div><div class="chart-bar-lbl">Thu</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:55%;background:var(--primary);"></div><div class="chart-bar-lbl">Fri</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:20%;background:#c8c6c4;"></div><div class="chart-bar-lbl">Sat</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:10%;background:#c8c6c4;"></div><div class="chart-bar-lbl">Sun</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-trending-up"></i> Training Progress – Telesale K8</div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Orientation</span><span style="font-weight:600;color:var(--success);">100%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:100%;background:var(--success);"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Drug Safety Alert</span><span style="font-weight:600;color:var(--success);">100%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:100%;background:var(--success);"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Product Knowledge A</span><span style="font-weight:600;color:var(--primary);">65%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:65%;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>Sales Skills</span><span style="font-weight:600;color:var(--warning);">30%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:30%;background:var(--warning);"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>CRM System</span><span style="font-weight:600;color:#ccc;">0%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:0%;"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="ti ti-calendar-week"></i> Classes This Week</div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Date</th><th>Time</th><th>Course</th><th>Batch</th><th>Room</th><th>Lecturer</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Mon 23/06</td><td>08:00–10:00</td><td>Orientation</td><td>Telesale K8</td><td>Phòng 101</td><td>HR Team</td><td><span class="badge badge-green">Done</span></td></tr>
+            <tr><td>Mon 23/06</td><td>10:00–12:00</td><td>Drug Safety Alert</td><td>Telesale K8</td><td>Phòng 101</td><td>Dr. Minh</td><td><span class="badge badge-green">Done</span></td></tr>
+            <tr><td>Tue 24/06</td><td>09:00–11:00</td><td>Product Knowledge A</td><td>Telesale K8</td><td>Phòng 201</td><td>Dr. Lan</td><td><span class="badge badge-green">Done</span></td></tr>
+            <tr><td>Wed 25/06</td><td>14:00–16:00</td><td>Product Knowledge B</td><td>Telesale K8</td><td>Phòng 201</td><td>Dr. Minh</td><td><span class="badge badge-blue">In Progress</span></td></tr>
+            <tr><td>Thu 26/06</td><td>09:00–11:00</td><td>Sales Skills Basic</td><td>Telesale K8</td><td>Phòng 301</td><td>Ms. Hoa</td><td><span class="badge badge-amber">Upcoming</span></td></tr>
+            <tr><td>Fri 27/06</td><td>14:00–16:00</td><td>CRM System Training</td><td>Telesale K8</td><td>Phòng 101</td><td>Mr. Tuấn</td><td><span class="badge badge-amber">Upcoming</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: BOOK ROOM ══ -->
+    <div class="page" id="page-book-room">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:18px;font-weight:600;">Book a Training Room</div><div style="font-size:13px;color:#666;margin-top:2px;">Select a room and fill in booking details</div></div>
+      </div>
+      <div class="grid2" style="align-items:start;">
+        <div>
+          <div class="card" style="margin-bottom:14px;">
+            <div class="card-title"><i class="ti ti-filter"></i> Filters</div>
+            <div class="form-row">
+              <div class="form-group" style="margin:0;"><div class="form-label">Date</div><input type="date" class="form-control" id="book-date" value="2026-06-26"></div>
+              <div class="form-group" style="margin:0;"><div class="form-label">Capacity needed</div><input type="number" class="form-control" id="book-capacity" placeholder="e.g. 20" value="26"></div>
+            </div>
+            <div class="checkbox-row"><input type="checkbox" id="need-proj"><label for="need-proj">Need projector</label></div>
+          </div>
+          <div class="card-title" style="margin-bottom:10px;"><i class="ti ti-door" style="color:var(--primary);font-size:18px;"></i> Available Rooms</div>
+          <div class="room-grid" id="room-list"></div>
+        </div>
+        <div class="card" id="booking-form" style="position:sticky;top:68px;">
+          <div class="card-title"><i class="ti ti-calendar-plus"></i> Booking Details</div>
+          <div id="selected-room-info" style="background:var(--primary-light);border-radius:6px;padding:10px 12px;margin-bottom:14px;font-size:13px;color:var(--primary-dark);display:none;"></div>
+          <div class="form-row">
+            <div class="form-group"><div class="form-label">Start Time</div><input type="time" class="form-control" id="book-start" value="09:00"></div>
+            <div class="form-group"><div class="form-label">End Time</div><input type="time" class="form-control" id="book-end" value="11:00"></div>
+          </div>
+          <div class="form-group"><div class="form-label">Number of People</div><input type="number" class="form-control" id="book-people" value="26"></div>
+          <div class="form-group"><div class="form-label">Purpose / Course Name</div><input type="text" class="form-control" id="book-purpose" placeholder="e.g. Product Knowledge A – Telesale K8"></div>
+          <div style="background:#f3f2f1;border-radius:8px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:12px;font-weight:600;color:#444;margin-bottom:8px;">Additional Services</div>
+            <div class="checkbox-row"><input type="checkbox" id="need-water" checked><label for="need-water"><i class="ti ti-droplet" style="color:var(--primary);"></i> Water</label></div>
+            <div class="checkbox-row"><input type="checkbox" id="need-tea"><label for="need-tea"><i class="ti ti-coffee" style="color:var(--warning);"></i> Tea Break <span class="badge badge-purple" style="font-size:10px;">HR Training only</span></label></div>
+            <div class="checkbox-row"><input type="checkbox" id="need-teams"><label for="need-teams"><i class="ti ti-brand-teams" style="color:#6264A7;"></i> Create MS Teams Meeting</label></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="bookRoom()"><i class="ti ti-check"></i> Confirm Booking</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: IMPORT EMPLOYEE ══ -->
+    <div class="page" id="page-import-emp">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:18px;font-weight:600;">New Employee Import</div><div style="font-size:13px;color:#666;margin-top:2px;">Upload Excel file to onboard new employees</div></div>
+        <button class="btn btn-secondary" onclick="downloadTemplate()"><i class="ti ti-download"></i> Download Template</button>
+      </div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="upload-zone" id="upload-zone" onclick="simulateUpload()">
+          <div><i class="ti ti-file-spreadsheet" style="display:block;text-align:center;font-size:48px;color:#c8c6c4;margin-bottom:10px;"></i>
+          <div style="font-size:15px;font-weight:500;margin-bottom:6px;">Drop Excel file here or click to upload</div>
+          <div style="font-size:12px;color:#888;">.xlsx, .xls supported · Max 10MB</div>
+          <button class="btn btn-primary" style="margin-top:14px;" onclick="event.stopPropagation();simulateUpload()"><i class="ti ti-upload"></i> Choose File</button></div>
+        </div>
+      </div>
+      <div class="card" id="import-preview" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div class="card-title" style="margin:0;"><i class="ti ti-table"></i> Preview – 26 records found</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-secondary btn-sm" onclick="closePreview()"><i class="ti ti-x"></i> Cancel</button>
+            <button class="btn btn-success" onclick="importEmployees()"><i class="ti ti-file-import"></i> Import All</button>
+          </div>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Employee ID</th><th>Full Name</th><th>Department</th><th>Onboarding Date</th><th>Training Batch</th><th>Status</th></tr></thead>
+          <tbody id="import-table-body"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: ACTIVE ACCOUNTS ══ -->
+    <div class="page" id="page-active-acc">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:18px;font-weight:600;">Active Accounts</div><div style="font-size:13px;color:#666;margin-top:2px;">All activated employee training accounts</div></div>
+        <div style="display:flex;gap:8px;"><input class="form-control" placeholder="Search name..." style="width:200px;" oninput="filterAccounts(this.value)"><select class="form-control" style="width:160px;" onchange="filterBatch(this.value)"><option value="">All Batches</option><option>Telesale K8</option><option>Telesale K7</option><option>CS K3</option></select></div>
+      </div>
+      <div class="card"><div class="tbl-wrap"><table>
+        <thead><tr><th>Employee</th><th>Batch</th><th>Email</th><th>Onboarding</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="accounts-table"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ══ PAGE: TRAINING PROFILES LIST ══ -->
+    <div class="page" id="page-training-profiles">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:18px;font-weight:600;">Training Profiles</div><div style="font-size:13px;color:#666;margin-top:2px;">Click on an employee to view their full training profile</div></div>
+        <input class="form-control" placeholder="Search..." style="width:200px;">
+      </div>
+      <div class="card"><div class="tbl-wrap"><table>
+        <thead><tr><th>Employee</th><th>Batch</th><th>Progress</th><th>Modules Done</th><th>Next Unlock</th><th>Action</th></tr></thead>
+        <tbody id="profiles-table"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ══ PAGE: PERSONAL TRAINING PROFILE ══ -->
+    <div class="page" id="page-profile">
+      <button class="btn btn-secondary btn-sm" style="margin-bottom:14px;" onclick="nav('training-profiles')"><i class="ti ti-arrow-left"></i> Back to list</button>
+      <div class="profile-shell">
+        <div class="profile-sidebar">
+          <div class="p-card" style="text-align:center;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid #f0f0f0;">
+              <div class="p-avatar" id="prof-avatar">KN</div>
+              <div><div class="p-name" id="prof-name">Phạm Thị Kim Ngân</div><div class="p-sub" id="prof-title">Chuyên viên tư vấn</div></div>
+              <span class="badge badge-green"><i class="ti ti-circle-check" style="font-size:11px;"></i> Active</span>
+              <span class="badge badge-blue" id="prof-batch">Telesale K8</span>
+            </div>
+            <div style="padding-top:10px;">
+              <div class="p-meta"><i class="ti ti-id-badge" style="font-size:14px;color:#bbb;"></i> <span id="prof-id">NV-2024-0018</span></div>
+              <div class="p-meta"><i class="ti ti-building" style="font-size:14px;color:#bbb;"></i> <span id="prof-dept">Phòng Kinh Doanh</span></div>
+              <div class="p-meta"><i class="ti ti-calendar" style="font-size:14px;color:#bbb;"></i> OB: <span id="prof-ob">01/07/2026</span></div>
+            </div>
+          </div>
+          <div class="p-card">
+            <div style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Navigate</div>
+            <div class="p-nav">
+              <div class="p-nav-item active" onclick="profTab('modules')"><i class="ti ti-books"></i> Training Modules</div>
+              <div class="p-nav-item" onclick="profTab('courses')"><i class="ti ti-school"></i> Courses</div>
+              <div class="p-nav-item" onclick="profTab('schedule')"><i class="ti ti-calendar-event"></i> Schedule & Exams</div>
+              <div class="p-nav-item" onclick="profTab('roadmap')"><i class="ti ti-trending-up"></i> Career Roadmap</div>
+              <div class="p-nav-item" onclick="profTab('competency')"><i class="ti ti-chart-radar"></i> Competency</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <!-- Modules -->
+          <div id="prof-modules" class="p-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <div style="font-size:14px;font-weight:600;"><i class="ti ti-books" style="color:var(--primary);margin-right:6px;"></i>Training Modules</div>
+              <button class="btn btn-secondary btn-sm" onclick="showManualUnlock()"><i class="ti ti-lock-open"></i> Manual Unlock</button>
+            </div>
+            <div id="module-list"></div>
+          </div>
+          <!-- Courses -->
+          <div id="prof-courses" class="p-card" style="display:none;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:14px;"><i class="ti ti-school" style="color:var(--primary);margin-right:6px;"></i>Các khoá học</div>
+            <div class="tab-bar">
+              <button class="tab-btn active" onclick="courseTab('done',this)">Hoàn thành (10)</button>
+              <button class="tab-btn" onclick="courseTab('going',this)">Đang học (3)</button>
+              <button class="tab-btn" onclick="courseTab('soon',this)">Sắp đến (4)</button>
+              <button class="tab-btn" onclick="courseTab('expired',this)">Quá hạn (2)</button>
+            </div>
+            <div id="course-done"><div class="course-row"><div class="course-icon" style="background:#DFF6DD;"><i class="ti ti-book" style="color:var(--success);"></i></div><div style="flex:1;"><div class="course-name">Kỹ năng bán hàng cơ bản</div><div class="course-sub">Gói KTSP · Hoàn thành 15/01/2024</div></div><span class="badge badge-green">Chứng chỉ</span></div><div class="course-row"><div class="course-icon" style="background:#EBF3FB;"><i class="ti ti-device-laptop" style="color:var(--primary);"></i></div><div style="flex:1;"><div class="course-name">Thao tác phần mềm CRM</div><div class="course-sub">Kỹ thuật phần mềm · 02/03/2024</div></div><span class="badge badge-green">Chứng chỉ</span></div><div class="course-row"><div class="course-icon" style="background:#F0E9F8;"><i class="ti ti-users" style="color:var(--purple);"></i></div><div style="flex:1;"><div class="course-name">Kỹ năng giao tiếp khách hàng</div><div class="course-sub">Gói KTSP · 05/05/2024</div></div><span class="badge badge-green">Chứng chỉ</span></div></div>
+            <div id="course-going" style="display:none;"><div class="course-row"><div class="course-icon" style="background:#FFF4CE;"><i class="ti ti-headset" style="color:var(--warning);"></i></div><div style="flex:1;"><div class="course-name">Nghiệp vụ chăm sóc khách hàng</div><div class="course-sub">Hạn: 30/06/2024</div><div class="pbar"><div class="pfill" style="width:60%;background:var(--warning);"></div></div></div><span style="font-size:11px;font-weight:600;color:var(--warning);">60%</span></div><div class="course-row"><div class="course-icon" style="background:#EBF3FB;"><i class="ti ti-chart-bar" style="color:var(--primary);"></i></div><div style="flex:1;"><div class="course-name">Phân tích dữ liệu cơ bản</div><div class="course-sub">Hạn: 15/07/2024</div><div class="pbar"><div class="pfill" style="width:30%;"></div></div></div><span style="font-size:11px;font-weight:600;color:var(--primary);">30%</span></div></div>
+            <div id="course-soon" style="display:none;"><div class="course-row"><div class="course-icon" style="background:#f3f2f1;"><i class="ti ti-lock" style="color:#888;"></i></div><div style="flex:1;"><div class="course-name" style="color:#888;">Quản lý dự án cơ bản</div><div class="course-sub">Mở từ 01/08/2024</div></div><span class="badge badge-gray">Sắp mở</span></div></div>
+            <div id="course-expired" style="display:none;"><div class="course-row"><div class="course-icon" style="background:#FDE7E9;"><i class="ti ti-alert-circle" style="color:var(--danger);"></i></div><div style="flex:1;"><div class="course-name">Kỹ năng mềm & quản lý cảm xúc</div><div class="course-sub" style="color:var(--danger);">Hết hạn: 01/03/2024</div></div><span class="badge badge-red">Quá hạn</span></div></div>
+          </div>
+          <!-- Schedule -->
+          <div id="prof-schedule" class="p-card" style="display:none;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:14px;"><i class="ti ti-calendar-event" style="color:var(--primary);margin-right:6px;"></i>Lịch học & Thi</div>
+            <div class="course-row"><div class="course-icon" style="background:#DFF6DD;"><i class="ti ti-video" style="color:var(--success);"></i></div><div style="flex:1;"><div class="course-name">Lớp học online – Chăm sóc KH</div><div class="course-sub">Thứ 3, 18/06 · 14:00–16:00 · Zoom</div></div><span class="badge badge-blue">Online</span></div>
+            <div class="course-row"><div class="course-icon" style="background:#FFF4CE;"><i class="ti ti-pencil" style="color:var(--warning);"></i></div><div style="flex:1;"><div class="course-name">Bài thi – Kỹ năng bán hàng</div><div class="course-sub">Thứ 5, 20/06 · 09:00 · Phòng 301</div></div><span class="badge badge-amber">Thi</span></div>
+            <div style="margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px;"><div style="font-size:12px;font-weight:600;color:#888;text-transform:uppercase;margin-bottom:10px;">Kết quả thi</div>
+            <table class="tbl-wrap" style="width:100%;font-size:12px;border-collapse:collapse;"><thead><tr style="background:#f3f2f1;"><th style="padding:8px;text-align:left;">Bài thi</th><th style="padding:8px;text-align:center;">Điểm</th><th style="padding:8px;text-align:center;">TT</th></tr></thead><tbody><tr><td style="padding:8px;border-bottom:1px solid #f0f0f0;">Kỹ năng bán hàng cơ bản</td><td style="padding:8px;text-align:center;font-weight:600;color:var(--success);">8.5</td><td style="padding:8px;text-align:center;"><span class="badge badge-green">Đạt</span></td></tr><tr><td style="padding:8px;">Thao tác phần mềm CRM</td><td style="padding:8px;text-align:center;font-weight:600;color:var(--success);">9.0</td><td style="padding:8px;text-align:center;"><span class="badge badge-green">Đạt</span></td></tr></tbody></table></div>
+          </div>
+          <!-- Roadmap -->
+          <div id="prof-roadmap" class="p-card" style="display:none;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:14px;"><i class="ti ti-trending-up" style="color:var(--primary);margin-right:6px;"></i>Career Roadmap</div>
+            <div class="rm-wrap"><div class="rm-dot-col"><div class="dot" style="background:var(--success);margin-top:4px;"></div><div class="dot-line"></div></div><div class="rm-body"><div style="display:flex;align-items:center;gap:8px;"><strong>Chuyên viên tư vấn</strong><span class="badge badge-green">Hiện tại</span></div><div style="font-size:12px;color:#888;margin-top:2px;">Vị trí đang đảm nhiệm</div><div style="margin-top:5px;"><span class="tag">Bán hàng</span><span class="tag">CRM</span><span class="tag">Giao tiếp KH</span></div></div></div>
+            <div class="rm-wrap"><div class="rm-dot-col"><div class="dot" style="background:var(--primary);margin-top:4px;"></div><div class="dot-line"></div></div><div class="rm-body"><div><strong>Chuyên viên cấp cao</strong></div><div style="font-size:12px;color:#888;margin-top:2px;">2 khoá nâng cao + điểm ≥ 8.0</div><div class="pbar" style="margin-top:8px;"><div class="pfill" style="width:45%;"></div></div><div style="font-size:11px;color:var(--primary);margin-top:3px;">45% hoàn thành</div></div></div>
+            <div class="rm-wrap"><div class="rm-dot-col"><div class="dot" style="background:#ccc;margin-top:4px;"></div></div><div class="rm-body" style="padding-bottom:0;"><div style="color:#888;"><strong>Trưởng nhóm kinh doanh</strong></div><div style="font-size:12px;color:#aaa;margin-top:2px;">Mở sau khi đạt cấp trên</div></div></div>
+          </div>
+          <!-- Competency -->
+          <div id="prof-competency" class="p-card" style="display:none;">
+            <div style="font-size:14px;font-weight:600;margin-bottom:14px;"><i class="ti ti-chart-radar" style="color:var(--primary);margin-right:6px;"></i>Khung năng lực</div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"><div style="background:#f3f2f1;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--success);">74%</div><div style="font-size:11px;color:#666;">Tổng</div></div><div style="background:#f3f2f1;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--primary);">4</div><div style="font-size:11px;color:#666;">Nhóm KN</div></div><div style="background:#f3f2f1;border-radius:8px;padding:10px;text-align:center;"><div style="font-size:22px;font-weight:700;color:var(--warning);">2</div><div style="font-size:11px;color:#666;">Cần cải thiện</div></div></div>
+            <div style="border-top:1px solid #f0f0f0;padding-top:12px;display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;gap:10px;"><div style="font-size:12px;color:#666;min-width:130px;">Gói KTSP</div><div style="flex:1;height:5px;background:#eee;border-radius:4px;"><div style="width:80%;height:100%;border-radius:4px;background:var(--success);"></div></div><div style="font-size:11px;color:var(--success);min-width:32px;text-align:right;">80%</div></div>
+              <div style="display:flex;align-items:center;gap:10px;"><div style="font-size:12px;color:#666;min-width:130px;">Kỹ thuật phần mềm</div><div style="flex:1;height:5px;background:#eee;border-radius:4px;"><div style="width:65%;height:100%;border-radius:4px;background:var(--primary);"></div></div><div style="font-size:11px;color:var(--primary);min-width:32px;text-align:right;">65%</div></div>
+              <div style="display:flex;align-items:center;gap:10px;"><div style="font-size:12px;color:#666;min-width:130px;">Kỹ năng hệ thống</div><div style="flex:1;height:5px;background:#eee;border-radius:4px;"><div style="width:50%;height:100%;border-radius:4px;background:var(--purple);"></div></div><div style="font-size:11px;color:var(--purple);min-width:32px;text-align:right;">50%</div></div>
+              <div style="display:flex;align-items:center;gap:10px;"><div style="font-size:12px;color:#666;min-width:130px;">Khái niệm cơ bản</div><div style="flex:1;height:5px;background:#eee;border-radius:4px;"><div style="width:90%;height:100%;border-radius:4px;background:var(--warning);"></div></div><div style="font-size:11px;color:var(--warning);min-width:32px;text-align:right;">90%</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: AUTO BOOK ══ -->
+    <div class="page" id="page-auto-book">
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Auto Classroom Booking</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px;">System finds the best available room automatically</div>
+      <div class="grid2" style="align-items:start;">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-wand"></i> Auto Book Settings</div>
+          <div class="form-group"><div class="form-label">Batch Name</div><input class="form-control" id="auto-batch" value="Telesale K8"></div>
+          <div class="form-group"><div class="form-label">Number of Trainees</div><input type="number" class="form-control" id="auto-count" value="26"></div>
+          <div class="form-group"><div class="form-label">Date</div><input type="date" class="form-control" id="auto-date" value="2026-06-26"></div>
+          <div class="form-row">
+            <div class="form-group"><div class="form-label">Start Time</div><input type="time" class="form-control" id="auto-start" value="09:00"></div>
+            <div class="form-group"><div class="form-label">End Time</div><input type="time" class="form-control" id="auto-end" value="11:00"></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="autoBook()"><i class="ti ti-wand"></i> Find & Book Room</button>
+        </div>
+        <div class="card" id="auto-result" style="display:none;">
+          <div class="card-title"><i class="ti ti-check"></i> Booking Result</div>
+          <div id="auto-result-body"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: LECTURER ASSIGNMENT ══ -->
+    <div class="page" id="page-lecturer-assign">
+      <div style="font-size:18px;font-weight:600;margin-bottom:4px;">Module Assignment</div>
+      <div style="font-size:13px;color:#666;margin-bottom:16px;">Assign training modules to a batch or individual employee</div>
+
+      <div class="grid2" style="align-items:start;margin-bottom:16px;">
+        <!-- LEFT: Assignment Form -->
+        <div class="card">
+          <div class="card-title"><i class="ti ti-clipboard-list"></i> Assign Module</div>
+
+          <!-- Step 1: Module -->
+          <div style="background:#f3f2f1;border-radius:8px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px;">Step 1 · Select Module</div>
+            <div class="form-group" style="margin:0;">
+              <select class="form-control" id="assign-module" onchange="onModuleChange()">
+                <option value="">-- Choose a module --</option>
+                <option>Orientation</option>
+                <option>Drug Safety Alert</option>
+                <option>Product Knowledge A</option>
+                <option>Product Knowledge B</option>
+                <option>Sales Skills Basic</option>
+                <option>CRM System Training</option>
+                <option>Compliance &amp; Ethics</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 2: Assign to -->
+          <div style="background:#f3f2f1;border-radius:8px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px;">Step 2 · Assign To</div>
+            <div style="display:flex;gap:8px;margin-bottom:10px;">
+              <button class="btn btn-primary btn-sm" id="assign-type-batch" onclick="setAssignType('batch')"><i class="ti ti-users"></i> Batch</button>
+              <button class="btn btn-secondary btn-sm" id="assign-type-individual" onclick="setAssignType('individual')"><i class="ti ti-user"></i> Individual</button>
+            </div>
+            <div id="assign-batch-select">
+              <select class="form-control" id="assign-batch">
+                <option value="">-- Select Batch --</option>
+                <option>Telesale K8</option>
+                <option>Telesale K7</option>
+                <option>CS K3</option>
+              </select>
+            </div>
+            <div id="assign-individual-select" style="display:none;">
+              <select class="form-control" id="assign-employee">
+                <option value="">-- Select Employee --</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Step 3: Lecturer -->
+          <div style="background:#f3f2f1;border-radius:8px;padding:12px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px;">Step 3 · Select Lecturer / Doctor</div>
+            <select class="form-control" id="assign-lecturer">
+              <option value="">-- Auto-detect or select manually --</option>
+              <option>Dr. Nguyễn Văn Minh</option>
+              <option>Dr. Trần Thị Lan</option>
+              <option>Dr. Lê Hoàng Nam</option>
+              <option>Ms. Nguyễn Thị Hoa</option>
+              <option>Mr. Lê Văn Tuấn</option>
+              <option>Ms. Phạm Thu Hằng</option>
+            </select>
+            <div style="margin-top:8px;">
+              <button class="btn btn-secondary btn-sm" onclick="autoDetectLecturer()"><i class="ti ti-wand"></i> Auto-detect best match</button>
+            </div>
+          </div>
+
+          <!-- Step 4: Schedule -->
+          <div style="background:#f3f2f1;border-radius:8px;padding:12px;margin-bottom:16px;">
+            <div style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;margin-bottom:8px;">Step 4 · Schedule</div>
+            <div class="form-row" style="margin-bottom:0;">
+              <div class="form-group" style="margin:0;"><div class="form-label">Date</div><input type="date" class="form-control" id="assign-date" value="2026-06-26"></div>
+              <div class="form-group" style="margin:0;"><div class="form-label">Time</div><input type="time" class="form-control" id="assign-time" value="09:00"></div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" style="width:100%;" onclick="confirmAssignment()"><i class="ti ti-check"></i> Confirm Assignment</button>
+        </div>
+
+        <!-- RIGHT: Result + assigned list -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card" id="assign-result" style="display:none;"></div>
+          <div class="card">
+            <div class="card-title"><i class="ti ti-list-check"></i> Recent Assignments</div>
+            <div id="assignment-log">
+              <div style="font-size:12px;color:#aaa;text-align:center;padding:20px;">No assignments yet</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lecturer Pool -->
+      <div class="card">
+        <div class="card-title"><i class="ti ti-users"></i> Lecturer & Doctor Pool</div>
+        <div id="lecturer-list"></div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: DOCTOR BOOKING ══ -->
+    <div class="page" id="page-doctor-booking">
+      <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Manual Doctor Booking</div>
+      <div class="grid2" style="align-items:start;">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-calendar-plus"></i> Book a Doctor</div>
+          <div class="form-group"><div class="form-label">Select Doctor</div>
+            <select class="form-control" id="book-doctor"><option>Dr. Nguyễn Văn Minh</option><option>Dr. Trần Thị Lan</option><option>Dr. Lê Hoàng Nam</option></select>
+          </div>
+          <div class="form-group"><div class="form-label">Course / Class</div>
+            <select class="form-control"><option>Drug Safety Alert – Telesale K8</option><option>Product Knowledge A – Telesale K8</option><option>Product Knowledge B – Telesale K8</option></select>
+          </div>
+          <div class="form-group"><div class="form-label">Date</div><input type="date" class="form-control" value="2026-06-26"></div>
+          <div class="form-row">
+            <div class="form-group"><div class="form-label">Start Time</div><input type="time" class="form-control" value="09:00"></div>
+            <div class="form-group"><div class="form-label">End Time</div><input type="time" class="form-control" value="11:00"></div>
+          </div>
+          <div class="form-group"><div class="form-label">Room</div>
+            <select class="form-control"><option>Phòng 101</option><option>Phòng 201</option><option>Phòng 301</option></select>
+          </div>
+          <button class="btn btn-primary" style="width:100%;" onclick="bookDoctor()"><i class="ti ti-check"></i> Save Booking</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-calendar-stats"></i> Upcoming Doctor Sessions</div>
+          <div id="doctor-upcoming"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: DOCTOR SCHEDULE ══ -->
+    <div class="page" id="page-doctor-schedule">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div><div style="font-size:18px;font-weight:600;">Doctor Schedule</div></div>
+        <div style="display:flex;gap:8px;">
+          <select class="form-control" style="width:160px;"><option>All Doctors</option><option>Dr. Nguyễn Văn Minh</option><option>Dr. Trần Thị Lan</option><option>Dr. Lê Hoàng Nam</option></select>
+          <select class="form-control" style="width:120px;"><option>This Week</option><option>This Month</option></select>
+        </div>
+      </div>
+      <div class="card"><div class="tbl-wrap"><table>
+        <thead><tr><th>Doctor</th><th>Date</th><th>Time</th><th>Course</th><th>Batch</th><th>Room</th><th>Duration</th></tr></thead>
+        <tbody id="doctor-schedule-table"></tbody>
+      </table></div></div>
+    </div>
+
+    <!-- ══ PAGE: DOCTOR PROFILES ══ -->
+    <div class="page" id="page-doctor-profiles">
+      <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Doctor Profiles</div>
+      <div id="doctor-cards" style="display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
+    <!-- ══ PAGE: NOTIFICATIONS ══ -->
+    <div class="page" id="page-notifications">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="font-size:18px;font-weight:600;">Notifications</div>
+        <button class="btn btn-secondary btn-sm" onclick="markAllRead()"><i class="ti ti-checks"></i> Mark all read</button>
+      </div>
+      <div class="card"><div id="notif-list"></div></div>
+    </div>
+
+    <!-- ══ PAGE: SETTINGS ══ -->
+    <div class="page" id="page-settings">
+      <div style="font-size:18px;font-weight:600;margin-bottom:16px;">Settings</div>
+      <div class="grid2" style="align-items:start;">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-user"></i> My Profile</div>
+          <div class="form-group"><div class="form-label">Full Name</div><input class="form-control" value="HR Training Team"></div>
+          <div class="form-group"><div class="form-label">Email</div><input class="form-control" value="hr.training@company.com"></div>
+          <div class="form-group"><div class="form-label">Role</div><select class="form-control"><option>HR Training</option><option>Admin</option><option>Manager</option></select></div>
+          <button class="btn btn-primary"><i class="ti ti-device-floppy"></i> Save Changes</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-bell"></i> Notification Preferences</div>
+          <div class="checkbox-row"><input type="checkbox" checked><label>Room booking confirmations</label></div>
+          <div class="checkbox-row"><input type="checkbox" checked><label>Projector alerts</label></div>
+          <div class="checkbox-row"><input type="checkbox" checked><label>Lecturer auto-assignments</label></div>
+          <div class="checkbox-row"><input type="checkbox"><label>Daily digest email</label></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ MODALS ══ -->
+<!-- Book Success -->
+<div class="modal-overlay" id="modal-book-success">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-check" style="color:var(--success);"></i> Booking Confirmed!</h3><button class="modal-close" onclick="closeModal('modal-book-success')">✕</button></div>
+    <div class="modal-body">
+      <div style="background:var(--success-light);border-radius:8px;padding:16px;margin-bottom:14px;">
+        <div id="booking-confirm-details" style="font-size:13px;line-height:1.8;"></div>
+      </div>
+      <div id="teams-link-wrap" style="display:none;background:var(--primary-light);border-radius:8px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--primary-dark);margin-bottom:4px;"><i class="ti ti-brand-teams"></i> MS Teams Meeting Link</div>
+        <div style="font-size:12px;color:var(--primary-dark);word-break:break-all;" id="teams-link-url"></div>
+      </div>
+      <div style="background:#FFF4CE;border-radius:8px;padding:10px 12px;font-size:12px;color:#854F0B;"><i class="ti ti-bell"></i> Notification sent to Reception Team</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-primary" onclick="closeModal('modal-book-success')">Done</button></div>
+  </div>
+</div>
+
+<!-- Manual Unlock -->
+<div class="modal-overlay" id="modal-unlock">
+  <div class="modal">
+    <div class="modal-header"><h3><i class="ti ti-lock-open" style="color:var(--warning);"></i> Manual Module Unlock</h3><button class="modal-close" onclick="closeModal('modal-unlock')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group"><div class="form-label">Select Module to Unlock</div>
+        <select class="form-control" id="unlock-module">
+          <option>Product Knowledge A</option><option>Product Knowledge B</option><option>Sales Skills Basic</option><option>CRM System Training</option>
+        </select>
+      </div>
+      <div class="form-group"><div class="form-label">Reason</div><textarea class="form-control" rows="3" placeholder="Reason for manual unlock..."></textarea></div>
+      <div style="background:#FFF4CE;border-radius:6px;padding:10px;font-size:12px;color:#854F0B;"><i class="ti ti-alert-triangle"></i> This action will be logged and requires manager approval.</div>
+    </div>
+    <div class="modal-footer"><button class="btn btn-secondary" onclick="closeModal('modal-unlock')">Cancel</button><button class="btn btn-primary" onclick="doUnlock()"><i class="ti ti-lock-open"></i> Unlock Module</button></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<script>
+// ── MOCK DATA ──
+const ROOMS = [
+  {id:1,name:'Phòng 101',capacity:30,projector:true,slots:['08:00-10:00','12:00-14:00'],busy:['10:00-12:00']},
+  {id:2,name:'Phòng 102',capacity:20,projector:false,slots:['09:00-11:00','14:00-16:00'],busy:['11:00-13:00']},
+  {id:3,name:'Phòng 201',capacity:40,projector:true,slots:['08:00-12:00'],busy:['13:00-17:00']},
+  {id:4,name:'Phòng 202',capacity:15,projector:false,slots:['10:00-12:00','15:00-17:00'],busy:['08:00-10:00']},
+  {id:5,name:'Hội trường A',capacity:80,projector:true,slots:['09:00-12:00'],busy:['14:00-17:00']},
+  {id:6,name:'Phòng Lab',capacity:25,projector:true,slots:['08:00-10:00','13:00-17:00'],busy:['10:00-13:00']},
+];
+
+const EMPLOYEES = [
+  {id:'NV-2026-001',name:'Phạm Thị Kim Ngân',dept:'Kinh Doanh',ob:'2026-07-01',batch:'Telesale K8',email:'kimngan@co.com',avatar:'KN',modulesDone:7,totalModules:14},
+  {id:'NV-2026-002',name:'Trần Văn Bình',dept:'Kinh Doanh',ob:'2026-07-01',batch:'Telesale K8',email:'tvbinh@co.com',avatar:'TB',modulesDone:8,totalModules:14},
+  {id:'NV-2026-003',name:'Lê Thị Cẩm',dept:'Kinh Doanh',ob:'2026-07-01',batch:'Telesale K8',email:'ltcam@co.com',avatar:'LC',modulesDone:6,totalModules:14},
+  {id:'NV-2026-004',name:'Nguyễn Hoàng Dũng',dept:'CS',ob:'2026-06-15',batch:'CS K3',email:'nhdung@co.com',avatar:'ND',modulesDone:11,totalModules:14},
+  {id:'NV-2026-005',name:'Võ Thị Em',dept:'CS',ob:'2026-06-15',batch:'CS K3',email:'vtem@co.com',avatar:'VE',modulesDone:13,totalModules:14},
+  {id:'NV-2026-006',name:'Đinh Văn Phúc',dept:'Kinh Doanh',ob:'2025-12-01',batch:'Telesale K7',email:'dvphuc@co.com',avatar:'DP',modulesDone:10,totalModules:14},
+];
+
+const DOCTORS = [
+  {name:'Dr. Nguyễn Văn Minh',position:'Senior Medical Advisor',expertise:['Product A','Product B','Drug Safety'],available:['Mon 09:00-11:00','Wed 14:00-16:00','Fri 09:00-11:00'],avatar:'NM',color:'#0078D4'},
+  {name:'Dr. Trần Thị Lan',position:'Medical Trainer',expertise:['Product B','Product C'],available:['Tue 09:00-11:00','Thu 14:00-16:00'],avatar:'TL',color:'#107C10'},
+  {name:'Dr. Lê Hoàng Nam',position:'Clinical Pharmacist',expertise:['Product A','Drug Safety','Compliance'],available:['Mon 14:00-16:00','Wed 09:00-11:00','Fri 14:00-16:00'],avatar:'LN',color:'#5C2D91'},
+];
+
+const LECTURERS = [
+  {name:'Ms. Nguyễn Thị Hoa',position:'Senior Sales Trainer',expertise:['Sales Skills','Communication','CRM'],available:['Mon-Fri 08:00-12:00']},
+  {name:'Mr. Lê Văn Tuấn',position:'IT Trainer',expertise:['CRM System','Digital Tools','Data'],available:['Tue-Thu 14:00-17:00']},
+  {name:'Ms. Phạm Thu Hằng',position:'HR Specialist',expertise:['Orientation','Soft Skills','Compliance'],available:['Mon-Wed 09:00-11:00']},
+];
+
+const DOCTOR_SCHEDULE = [
+  {doctor:'Dr. Nguyễn Văn Minh',date:'Mon 23/06',time:'10:00-12:00',course:'Drug Safety Alert',batch:'Telesale K8',room:'Phòng 101',duration:'2h'},
+  {doctor:'Dr. Trần Thị Lan',date:'Tue 24/06',time:'09:00-11:00',course:'Product Knowledge A',batch:'Telesale K8',room:'Phòng 201',duration:'2h'},
+  {doctor:'Dr. Nguyễn Văn Minh',date:'Wed 25/06',time:'14:00-16:00',course:'Product Knowledge B',batch:'Telesale K8',room:'Phòng 201',duration:'2h'},
+  {doctor:'Dr. Lê Hoàng Nam',date:'Thu 26/06',time:'09:00-11:00',course:'Drug Safety Alert',batch:'CS K3',room:'Phòng 101',duration:'2h'},
+];
+
+const NOTIFICATIONS = [
+  {type:'success',icon:'ti-door',title:'Room Booked – Phòng 201',sub:'Telesale K8 · Wed 25/06 14:00-16:00',time:'10 min ago',unread:true},
+  {type:'warning',icon:'ti-projector',title:'Need Portable Projector',sub:'Phòng 102 has no projector – session on Tue 24/06',time:'1 hour ago',unread:true},
+  {type:'primary',icon:'ti-brand-teams',title:'Teams Meeting Created',sub:'Drug Safety Alert · Link: teams.microsoft.com/meeting/abc123',time:'2 hours ago',unread:true},
+  {type:'success',icon:'ti-user-check',title:'Lecturer Auto-Assigned',sub:'Dr. Lan → Product Knowledge A on Tue 24/06',time:'3 hours ago',unread:true},
+  {type:'danger',icon:'ti-alert-triangle',title:'Manual Assignment Required',sub:'Product Knowledge C – No available lecturer found',time:'5 hours ago',unread:false},
+  {type:'danger',icon:'ti-door-off',title:'No Room Available',sub:'Request for 50-person room on Fri 27/06 failed',time:'Yesterday',unread:false},
+];
+
+const MODULES = [
+  {name:'Orientation',locked:false,special:true,done:true,desc:'Company overview & culture'},
+  {name:'Drug Safety Alert',locked:false,special:true,done:true,desc:'Critical safety training – mandatory'},
+  {name:'Product Knowledge A',locked:false,done:true,unlockDay:-2,desc:'Core product training'},
+  {name:'Product Knowledge B',locked:false,done:false,unlockDay:5,desc:'Advanced product training'},
+  {name:'Sales Skills Basic',locked:true,done:false,unlockDay:10,desc:'Sales techniques & methodology'},
+  {name:'CRM System Training',locked:true,done:false,unlockDay:14,desc:'CRM tools & workflow'},
+  {name:'Compliance & Ethics',locked:true,done:false,unlockDay:21,desc:'Regulatory compliance'},
+];
+
+let selectedRoom = null;
+let currentEmployee = EMPLOYEES[0];
+let notifications = [...NOTIFICATIONS];
+
+// ── NAVIGATION ──
+const PAGE_TITLES = {
+  'dashboard':'Dashboard','book-room':'Book Room','import-emp':'New Employee Import',
+  'active-acc':'Active Accounts','training-profiles':'Training Profiles','profile':'Training Profile',
+  'auto-book':'Auto Classroom Booking','lecturer-assign':'Lecturer Assignment',
+  'doctor-booking':'Doctor Booking','doctor-schedule':'Doctor Schedule',
+  'doctor-profiles':'Doctor Profiles','notifications':'Notifications','settings':'Settings'
+};
+
+function nav(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m=>m.classList.remove('active'));
+  const items = document.querySelectorAll('.menu-item');
+  items.forEach(m=>{if(m.getAttribute('onclick')&&m.getAttribute('onclick').includes("'"+page+"'"))m.classList.add('active');});
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[page]||page;
+  if(page==='book-room') renderRooms();
+  if(page==='active-acc') renderAccounts();
+  if(page==='training-profiles') renderProfiles();
+  if(page==='notifications') renderNotifications();
+  if(page==='doctor-profiles') renderDoctorProfiles();
+  if(page==='doctor-schedule') renderDoctorSchedule();
+  if(page==='doctor-booking') renderDoctorUpcoming();
+  if(page==='lecturer-assign') renderLecturers();
+  if(page==='import-emp') renderImportTable();
+  if(page==='profile') renderModules();
+}
+
+// ── ROOMS ──
+function renderRooms(){
+  const el = document.getElementById('room-list');
+  el.innerHTML = ROOMS.map(r=>`
+    <div class="room-card${selectedRoom===r.id?' selected':''}" onclick="selectRoom(${r.id})">
+      <div class="room-name">${r.name}</div>
+      <div class="room-meta">
+        <span class="badge badge-blue"><i class="ti ti-users" style="font-size:11px;"></i> ${r.capacity}</span>
+        ${r.projector?'<span class="badge badge-green"><i class="ti ti-device-projector" style="font-size:11px;"></i> Projector</span>':'<span class="badge badge-gray">No Projector</span>'}
+        <span class="badge${r.slots.length>0?' badge-green':' badge-red'}">${r.slots.length>0?'Available':'Fully Booked'}</span>
+      </div>
+      <div class="room-slots">
+        ${r.slots.map(s=>`<span class="slot slot-free"><i class="ti ti-clock" style="font-size:10px;"></i> ${s}</span>`).join('')}
+        ${r.busy.map(s=>`<span class="slot slot-busy">${s}</span>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function selectRoom(id){
+  selectedRoom=id;
+  const r=ROOMS.find(x=>x.id===id);
+  const info=document.getElementById('selected-room-info');
+  info.style.display='block';
+  info.innerHTML=`<strong>${r.name}</strong> selected · Capacity: ${r.capacity} · ${r.projector?'✓ Has Projector':'⚠ No Projector'}`;
+  renderRooms();
+}
+
+function bookRoom(){
+  if(!selectedRoom){showToast('Please select a room first','error');return;}
+  const r=ROOMS.find(x=>x.id===selectedRoom);
+  const start=document.getElementById('book-start').value;
+  const end=document.getElementById('book-end').value;
+  const purpose=document.getElementById('book-purpose').value||'Training Session';
+  const needTeams=document.getElementById('need-teams').checked;
+  const needProj=document.getElementById('need-proj').checked;
+
+  let details=`📅 ${document.getElementById('book-date').value}<br>🕐 ${start} – ${end}<br>📍 ${r.name}<br>📚 ${purpose}<br>👥 ${document.getElementById('book-people').value} people`;
+  if(!r.projector&&needProj) details+='<br><br>⚠️ <strong>Note:</strong> Need portable projector support';
+
+  document.getElementById('booking-confirm-details').innerHTML=details;
+
+  if(needTeams){
+    document.getElementById('teams-link-wrap').style.display='block';
+    document.getElementById('teams-link-url').textContent='https://teams.microsoft.com/l/meetup-join/'+Math.random().toString(36).substr(2,16);
+  } else {
+    document.getElementById('teams-link-wrap').style.display='none';
+  }
+
+  openModal('modal-book-success');
+  addNotification('success','ti-door',`Room Booked – ${r.name}`,`${purpose} · ${start}–${end}`);
+  if(!r.projector&&needProj) addNotification('warning','ti-projector',`Need Portable Projector`,`${r.name} – ${purpose}`);
+  if(needTeams) addNotification('primary','ti-brand-teams','Teams Meeting Created',`${purpose} · Link generated`);
+}
+
+// ── EMPLOYEES ──
+function renderAccounts(){
+  const tbody=document.getElementById('accounts-table');
+  tbody.innerHTML=EMPLOYEES.map(e=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489;">${e.avatar}</div>
+        <div><div style="font-weight:500;">${e.name}</div><div style="font-size:11px;color:#888;">${e.id}</div></div></div></td>
+      <td><span class="badge badge-blue">${e.batch}</span></td>
+      <td style="color:#666;">${e.email}</td>
+      <td style="color:#666;">${e.ob}</td>
+      <td><span class="badge badge-green"><i class="ti ti-circle-check" style="font-size:11px;"></i> Active</span></td>
+      <td><button class="btn btn-secondary btn-sm" onclick="viewProfile('${e.id}')"><i class="ti ti-eye"></i> View Profile</button></td>
+    </tr>`).join('');
+}
+
+function filterAccounts(q){
+  document.querySelectorAll('#accounts-table tr').forEach(tr=>{
+    tr.style.display=q===''||tr.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
+  });
+}
+function filterBatch(b){
+  document.querySelectorAll('#accounts-table tr').forEach(tr=>{
+    tr.style.display=b===''||tr.textContent.includes(b)?'':'none';
+  });
+}
+
+function renderProfiles(){
+  const tbody=document.getElementById('profiles-table');
+  tbody.innerHTML=EMPLOYEES.map(e=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:#CECBF6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#3C3489;">${e.avatar}</div>
+        <div><div style="font-weight:500;">${e.name}</div><div style="font-size:11px;color:#888;">${e.dept}</div></div></div></td>
+      <td><span class="badge badge-blue">${e.batch}</span></td>
+      <td><div style="width:120px;"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px;"><span></span><span style="font-weight:600;color:var(--primary);">${Math.round(e.modulesDone/e.totalModules*100)}%</span></div><div class="prog-wrap"><div class="prog-fill" style="width:${Math.round(e.modulesDone/e.totalModules*100)}%;"></div></div></div></td>
+      <td><span class="badge badge-green">${e.modulesDone} / ${e.totalModules}</span></td>
+      <td style="font-size:12px;color:#888;">07/07/2026</td>
+      <td><button class="btn btn-primary btn-sm" onclick="viewProfile('${e.id}')"><i class="ti ti-user"></i> View Profile</button></td>
+    </tr>`).join('');
+}
+
+function viewProfile(id){
+  const emp=EMPLOYEES.find(e=>e.id===id)||EMPLOYEES[0];
+  currentEmployee=emp;
+  document.getElementById('prof-name').textContent=emp.name;
+  document.getElementById('prof-id').textContent=emp.id;
+  document.getElementById('prof-dept').textContent='Phòng '+emp.dept;
+  document.getElementById('prof-batch').textContent=emp.batch;
+  document.getElementById('prof-avatar').textContent=emp.avatar;
+  document.getElementById('prof-ob').textContent=emp.ob;
+  nav('profile');
+  profTab('modules');
+}
+
+// ── MODULES ──
+function renderModules(){
+  const el=document.getElementById('module-list');
+  const obDate=new Date(currentEmployee.ob);
+  el.innerHTML=MODULES.map(m=>{
+    const unlockDate=m.special?null:new Date(obDate.getTime()+(m.unlockDay||0)*86400000);
+    const isUnlocked=!m.locked;
+    return `<div class="module-row">
+      <div class="module-lock ${isUnlocked?'module-unlock':''}">
+        <i class="ti ${isUnlocked?'ti-lock-open':'ti-lock'}" style="color:${isUnlocked?'var(--success)':'#aaa'};font-size:15px;"></i>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:500;${!isUnlocked?'color:#aaa;':''}">${m.name} ${m.special?'<span class="badge badge-purple" style="font-size:10px;">Always Open</span>':''}</div>
+        <div style="font-size:11px;color:#888;margin-top:1px;">${m.desc}${!isUnlocked&&unlockDate?' · Unlocks: '+unlockDate.toLocaleDateString('vi-VN'):''}</div>
+      </div>
+      ${m.done?'<span class="badge badge-green"><i class="ti ti-check" style="font-size:11px;"></i> Done</span>':isUnlocked?'<span class="badge badge-blue">In Progress</span>':'<span class="badge badge-gray">Locked</span>'}
+    </div>`;}).join('');
+}
+
+function profTab(tab){
+  ['modules','courses','schedule','roadmap','competency'].forEach(t=>{
+    const el=document.getElementById('prof-'+t);
+    if(el) el.style.display=t===tab?'':'none';
+  });
+  document.querySelectorAll('.p-nav-item').forEach((el,i)=>{
+    el.classList.toggle('active',['modules','courses','schedule','roadmap','competency'][i]===tab);
+  });
+  if(tab==='modules') renderModules();
+}
+
+function courseTab(tab,btn){
+  ['done','going','soon','expired'].forEach(t=>{
+    const el=document.getElementById('course-'+t);
+    if(el) el.style.display=t===tab?'':'none';
+  });
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── AUTO BOOK ──
+function autoBook(){
+  const count=parseInt(document.getElementById('auto-count').value)||26;
+  const batch=document.getElementById('auto-batch').value;
+  const suitable=ROOMS.filter(r=>r.capacity>=count);
+  const withProj=suitable.filter(r=>r.projector);
+  const chosen=withProj.length>0?withProj[0]:suitable[0];
+
+  const el=document.getElementById('auto-result');
+  el.style.display='block';
+  if(!chosen){
+    document.getElementById('auto-result-body').innerHTML=`<div style="background:var(--danger-light);border-radius:8px;padding:14px;"><i class="ti ti-alert-triangle" style="color:var(--danger);"></i> <strong>No available room found.</strong> Please arrange manually.</div>`;
+    return;
+  }
+  const needsAlert=!chosen.projector;
+  document.getElementById('auto-result-body').innerHTML=`
+    <div style="background:var(--success-light);border-radius:8px;padding:14px;margin-bottom:10px;">
+      <div style="font-weight:600;color:var(--success);margin-bottom:8px;"><i class="ti ti-check"></i> Room Found & Booked!</div>
+      <div style="font-size:13px;line-height:1.8;">🏫 <strong>${chosen.name}</strong><br>👥 Capacity: ${chosen.capacity}<br>📅 ${document.getElementById('auto-date').value}<br>🕐 ${document.getElementById('auto-start').value}–${document.getElementById('auto-end').value}<br>📚 ${batch}</div>
+    </div>
+    ${needsAlert?`<div style="background:var(--warning-light);border-radius:8px;padding:12px;font-size:13px;color:var(--warning);"><i class="ti ti-projector"></i> <strong>Note:</strong> Please prepare portable projector for ${chosen.name}</div>`:''}`;
+  if(needsAlert) addNotification('warning','ti-projector','Need Portable Projector',`Auto-booked ${chosen.name} – no built-in projector`);
+  addNotification('success','ti-door',`Auto Booked – ${chosen.name}`,`${batch} · ${document.getElementById('auto-date').value}`);
+  showToast(`Room ${chosen.name} booked for ${batch}`,'success');
+}
+
+// ── LECTURER ──
+function renderLecturers(){
+  document.getElementById('lecturer-list').innerHTML=LECTURERS.map(l=>`
+    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f0f0f0;">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--primary);font-size:13px;flex-shrink:0;">${l.name.split(' ').map(x=>x[0]).slice(-2).join('')}</div>
+      <div style="flex:1;">
+        <div style="font-weight:500;">${l.name}</div>
+        <div style="font-size:12px;color:#888;margin-top:1px;">${l.position}</div>
+        <div style="margin-top:6px;">${l.expertise.map(e=>`<span class="tag">${e}</span>`).join('')}</div>
+        <div style="font-size:11px;color:#888;margin-top:4px;"><i class="ti ti-clock" style="font-size:12px;"></i> ${l.available.join(', ')}</div>
+      </div>
+    </div>`).join('');
+}
+
+let assignType = 'batch';
+let assignmentLog = [];
+
+function setAssignType(type){
+  assignType = type;
+  document.getElementById('assign-batch-select').style.display = type==='batch' ? '' : 'none';
+  document.getElementById('assign-individual-select').style.display = type==='individual' ? '' : 'none';
+  document.getElementById('assign-type-batch').className = 'btn btn-sm ' + (type==='batch'?'btn-primary':'btn-secondary');
+  document.getElementById('assign-type-individual').className = 'btn btn-sm ' + (type==='individual'?'btn-primary':'btn-secondary');
+  if(type==='individual'){
+    const sel = document.getElementById('assign-employee');
+    sel.innerHTML = '<option value="">-- Select Employee --</option>' +
+      EMPLOYEES.map(e=>`<option value="${e.id}">${e.name} (${e.batch})</option>`).join('');
+  }
+}
+
+function onModuleChange(){
+  autoDetectLecturer();
+}
+
+function autoDetectLecturer(){
+  const module = document.getElementById('assign-module').value;
+  if(!module) return;
+  const keyword = module.toLowerCase().includes('product')?'Product':
+    module.toLowerCase().includes('drug')?'Drug Safety':
+    module.toLowerCase().includes('sales')?'Sales':
+    module.toLowerCase().includes('crm')?'CRM':
+    module.toLowerCase().includes('orientation')?'Orientation':
+    module.toLowerCase().includes('compliance')?'Compliance':'';
+  const allPool = [...LECTURERS.map(l=>({...l,isDoctor:false})), ...DOCTORS.map(d=>({...d,isDoctor:true}))];
+  const match = allPool.find(p=>p.expertise.some(e=>e.toLowerCase().includes(keyword.toLowerCase())));
+  const sel = document.getElementById('assign-lecturer');
+  if(match){
+    sel.value = match.name;
+    showToast('Best match: '+match.name,'success');
+  }
+}
+
+function confirmAssignment(){
+  const module = document.getElementById('assign-module').value;
+  const lecturer = document.getElementById('assign-lecturer').value;
+  const date = document.getElementById('assign-date').value;
+  const time = document.getElementById('assign-time').value;
+
+  if(!module){ showToast('Please select a module','error'); return; }
+
+  let target = '';
+  if(assignType==='batch'){
+    target = document.getElementById('assign-batch').value;
+    if(!target){ showToast('Please select a batch','error'); return; }
+  } else {
+    const empSel = document.getElementById('assign-employee');
+    const empId = empSel.value;
+    if(!empId){ showToast('Please select an employee','error'); return; }
+    target = empSel.options[empSel.selectedIndex].text;
+  }
+
+  const lecturerName = lecturer || 'TBD (Manual required)';
+  const el = document.getElementById('assign-result');
+  el.style.display = 'block';
+
+  if(!lecturer){
+    el.innerHTML = `<div class="card-title"><i class="ti ti-alert-triangle" style="color:var(--danger);"></i> No Lecturer Found</div>
+      <div style="background:var(--danger-light);border-radius:8px;padding:12px;font-size:13px;color:var(--danger);">Unable to auto assign lecturer. Manual action required.</div>`;
+    addNotification('danger','ti-alert-triangle','Manual Assignment Required','No available lecturer for '+module);
+    return;
+  }
+
+  el.innerHTML = `<div class="card-title"><i class="ti ti-check" style="color:var(--success);"></i> Assignment Confirmed!</div>
+    <div style="background:var(--success-light);border-radius:8px;padding:12px;font-size:13px;line-height:1.9;">
+      📚 <strong>${module}</strong><br>
+      ${assignType==='batch'?'👥':'👤'} <strong>${target}</strong><br>
+      🎓 Lecturer: <strong>${lecturerName}</strong><br>
+      📅 ${date} · ${time}<br>
+      ✅ Schedule updated · 📧 Email sent (mock)
+    </div>`;
+
+  // Add to log
+  assignmentLog.unshift({module, target, lecturer:lecturerName, date, time, type:assignType});
+  renderAssignmentLog();
+  addNotification('success','ti-user-check',`Module Assigned – ${module}`,`${target} · ${lecturerName}`);
+  showToast(`${module} assigned to ${target}`,'success');
+}
+
+function renderAssignmentLog(){
+  const el = document.getElementById('assignment-log');
+  if(!assignmentLog.length){ el.innerHTML='<div style="font-size:12px;color:#aaa;text-align:center;padding:20px;">No assignments yet</div>'; return; }
+  el.innerHTML = assignmentLog.map(a=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--success-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i class="ti ti-check" style="color:var(--success);font-size:16px;"></i>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:13px;font-weight:500;">${a.module}</div>
+        <div style="font-size:12px;color:#666;">${a.type==='batch'?'Batch':'Individual'}: ${a.target}</div>
+        <div style="font-size:11px;color:#888;">🎓 ${a.lecturer} · ${a.date} ${a.time}</div>
+      </div>
+      <span class="badge badge-green">Done</span>
+    </div>`).join('');
+}
+
+function autoAssignLecturer(){ autoDetectLecturer(); }
+
+// ── DOCTOR ──
+function renderDoctorUpcoming(){
+  document.getElementById('doctor-upcoming').innerHTML=DOCTOR_SCHEDULE.slice(0,3).map(s=>`
+    <div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;">
+      <div style="width:40px;height:40px;border-radius:8px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;"><i class="ti ti-stethoscope" style="color:var(--primary);"></i></div>
+      <div><div style="font-size:13px;font-weight:500;">${s.doctor}</div><div style="font-size:12px;color:#888;">${s.course} · ${s.batch}</div><div style="font-size:11px;color:#888;">${s.date} ${s.time} · ${s.room}</div></div>
+    </div>`).join('');
+}
+
+function renderDoctorSchedule(){
+  document.getElementById('doctor-schedule-table').innerHTML=DOCTOR_SCHEDULE.map(s=>`
+    <tr><td><strong>${s.doctor}</strong></td><td>${s.date}</td><td>${s.time}</td><td>${s.course}</td><td><span class="badge badge-blue">${s.batch}</span></td><td>${s.room}</td><td>${s.duration}</td></tr>`).join('');
+}
+
+function renderDoctorProfiles(){
+  document.getElementById('doctor-cards').innerHTML=DOCTORS.map(d=>`
+    <div class="card">
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="width:56px;height:56px;border-radius:50%;background:${d.color}20;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:${d.color};flex-shrink:0;">${d.avatar}</div>
+        <div style="flex:1;min-width:200px;">
+          <div style="font-size:15px;font-weight:600;">${d.name}</div>
+          <div style="font-size:12px;color:#888;margin-top:2px;">${d.position}</div>
+          <div style="margin-top:8px;"><span style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Expertise</span><div style="margin-top:4px;">${d.expertise.map(e=>`<span class="tag">${e}</span>`).join('')}</div></div>
+          <div style="margin-top:8px;"><span style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;">Available Time</span><div style="margin-top:4px;font-size:12px;color:#555;">${d.available.map(a=>`<span class="tag"><i class="ti ti-clock" style="font-size:10px;"></i> ${a}</span>`).join('')}</div></div>
+        </div>
+        <div style="min-width:200px;">
+          <div style="font-size:11px;font-weight:600;color:#666;text-transform:uppercase;margin-bottom:6px;">Teaching Schedule</div>
+          ${DOCTOR_SCHEDULE.filter(s=>s.doctor===d.name).map(s=>`
+            <div style="background:#f3f2f1;border-radius:6px;padding:8px 10px;margin-bottom:6px;font-size:12px;border-left:3px solid ${d.color};">
+              <div style="font-weight:500;">${s.course}</div>
+              <div style="color:#888;">${s.batch} · ${s.date} ${s.time} · ${s.room}</div>
+            </div>`).join('')||'<div style="font-size:12px;color:#aaa;">No upcoming sessions</div>'}
+          <button class="btn btn-secondary btn-sm" style="margin-top:8px;" onclick="showToast('Edit available time – feature coming soon','warning')"><i class="ti ti-clock-edit"></i> Edit Available Time</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function bookDoctor(){
+  const doc=document.getElementById('book-doctor').value;
+  DOCTOR_SCHEDULE.push({doctor:doc,date:'Thu 26/06',time:'09:00-11:00',course:'Drug Safety Alert',batch:'Telesale K8',room:'Phòng 101',duration:'2h'});
+  addNotification('success','ti-stethoscope',`Doctor Booked – ${doc}`,'Drug Safety Alert · Thu 26/06');
+  showToast(`${doc} booked successfully`,'success');
+  renderDoctorUpcoming();
+}
+
+// ── IMPORT ──
+function renderImportTable(){
+  const tbody=document.getElementById('import-table-body');
+  tbody.innerHTML=EMPLOYEES.slice(0,5).map((e,i)=>`
+    <tr><td>${e.id}</td><td>${e.name}</td><td>${e.dept}</td><td>${e.ob}</td><td>${e.batch}</td>
+    <td><span class="badge badge-green">Valid</span></td></tr>`).join('')+
+    `<tr><td colspan="6" style="text-align:center;color:#888;padding:10px;font-size:12px;">... and 21 more records</td></tr>`;
+}
+
+function simulateUpload(){
+  const zone=document.getElementById('upload-zone');
+  zone.innerHTML='<i class="ti ti-loader" style="font-size:32px;color:var(--primary);animation:spin 1s linear infinite;"></i><div style="font-size:14px;color:var(--primary);margin-top:8px;">Reading file...</div>';
+  setTimeout(()=>{
+    zone.innerHTML='<i class="ti ti-circle-check" style="font-size:40px;color:var(--success);display:block;text-align:center;"></i><div style="font-size:14px;font-weight:500;color:var(--success);margin-top:8px;">File loaded: Telesale_K8_Employees.xlsx</div><div style="font-size:12px;color:#888;margin-top:4px;">26 records found · Click Preview below</div>';
+    document.getElementById('import-preview').style.display='block';
+    renderImportTable();
+  },1500);
+}
+
+function closePreview(){document.getElementById('import-preview').style.display='none';}
+function importEmployees(){showToast('26 employees imported successfully!','success');closePreview();addNotification('success','ti-file-import','Import Complete','26 new employees added – Telesale K8');}
+function downloadTemplate(){showToast('Template downloaded: employee_import_template.xlsx','success');}
+
+// ── NOTIFICATIONS ──
+function renderNotifications(){
+  const colorMap={success:'var(--success-light)',warning:'var(--warning-light)',danger:'var(--danger-light)',primary:'var(--primary-light)'};
+  const iconColor={success:'var(--success)',warning:'var(--warning)',danger:'var(--danger)',primary:'var(--primary)'};
+  document.getElementById('notif-list').innerHTML=notifications.map(n=>`
+    <div class="notif-item${n.unread?' notif-unread':''}">
+      <div class="notif-icon" style="background:${colorMap[n.type]};"><i class="ti ${n.icon}" style="color:${iconColor[n.type]};font-size:18px;"></i></div>
+      <div style="flex:1;"><div class="notif-title">${n.unread?'<strong>':''}${n.title}${n.unread?'</strong>':''}</div><div class="notif-sub">${n.sub}</div><div class="notif-time">${n.time}</div></div>
+      ${n.unread?'<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:4px;"></div>':''}
+    </div>`).join('');
+}
+
+function addNotification(type,icon,title,sub){
+  notifications.unshift({type,icon,title,sub,time:'Just now',unread:true});
+  const count=notifications.filter(n=>n.unread).length;
+  document.getElementById('notif-count').textContent=count;
+}
+function markAllRead(){notifications.forEach(n=>n.unread=false);document.getElementById('notif-count').textContent='0';renderNotifications();}
+
+// ── MODALS ──
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function showManualUnlock(){openModal('modal-unlock');}
+function doUnlock(){const m=document.getElementById('unlock-module').value;closeModal('modal-unlock');showToast(`Module "${m}" unlocked successfully`,'success');addNotification('success','ti-lock-open',`Module Unlocked – ${m}`,currentEmployee.name);renderModules();}
+
+// ── TOAST ──
+function showToast(msg,type='success'){
+  const wrap=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className=`toast${type==='error'?' error':type==='warning'?' warning':''}`;
+  const icon=type==='success'?'ti-check':type==='error'?'ti-x':'ti-alert-triangle';
+  const color=type==='success'?'var(--success)':type==='error'?'var(--danger)':'var(--warning)';
+  t.innerHTML=`<i class="ti ${icon}" style="color:${color};font-size:18px;flex-shrink:0;"></i>${msg}`;
+  wrap.appendChild(t);
+  setTimeout(()=>t.remove(),3500);
+}
+
+// ── SIDEBAR TOGGLE (mobile) ──
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');}
+
+// ── SPIN ANIMATION ──
+const style=document.createElement('style');
+style.textContent='@keyframes spin{to{transform:rotate(360deg);}}';
+document.head.appendChild(style);
+
+// ── RESPONSIVE ──
+function checkMobile(){
+  const isMobile=window.innerWidth<=768;
+  document.getElementById('menu-toggle').style.display=isMobile?'flex':'none';
+}
+window.addEventListener('resize',checkMobile);
+checkMobile();
+
+// Close sidebar on outside click
+document.addEventListener('click',e=>{
+  const sb=document.getElementById('sidebar');
+  if(window.innerWidth<=768&&sb.classList.contains('open')&&!sb.contains(e.target)&&!e.target.closest('#menu-toggle'))
+    sb.classList.remove('open');
+});
+
+// ── INIT ──
+nav('dashboard');
+</script>
+</body>
+</html>
